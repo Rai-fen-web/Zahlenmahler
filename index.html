@@ -112,6 +112,12 @@ h2 {
 }
 
 /* ---------- Galerie ---------- */
+header h1 small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--mut);
+  align-self: flex-end;
+}
 #grid {
   flex: 1;
   overflow: auto;
@@ -408,7 +414,7 @@ input[type=number] {
         <path fill="#ff9ff3" d="M0 2h1v1H0z"/>
         <path fill="#ff9d5c" d="M1 2h1v1H1z"/>
         <path fill="#54a0ff" d="M2 2h1v1H2z"/>
-      </svg>Zahlenmaler</h1>
+      </svg>Zahlenmaler<small id="ver"></small></h1>
     <button id="new" class="pri">＋ Neues Bild</button>
   </header>
   <div class="strip"></div>
@@ -547,6 +553,7 @@ let dpr = window.devicePixelRatio || 1;
 let raf = 0;
 let sw = [];
 let dirty = false;
+const APP_VERSION = "v6 · 20.11.";
 const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
 let ping = null;
 let lastJump = -1;
@@ -1505,6 +1512,7 @@ async function takeShared() {
 // 10. START
 // Galerie anzeigen und ggf. geteiltes Bild übernehmen.
 // ======================================================================
+$("ver").textContent = APP_VERSION;
 gallery().then(takeShared);
 </script>
 </body></html>
