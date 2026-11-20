@@ -4,300 +4,1507 @@
 <meta name="theme-color" content="#16122a">
 <title>Zahlenmaler</title>
 <style>
-:root{--bg:#16122a;--pn:#221c3d;--pn2:#2f2752;--acc:#ffc857;--acc2:#ff6b9d;--tx:#f1eefc;--mut:#9d95c4;--ln:#ffffff18}
-*{box-sizing:border-box}[hidden]{display:none!important}
-html,body{margin:0;height:100%;overflow:hidden;color:var(--tx);font:15px/1.35 "Trebuchet MS",system-ui,sans-serif;user-select:none;-webkit-user-select:none;
- background:var(--bg) radial-gradient(#ffffff0f 1.2px,transparent 1.3px) 0 0/20px 20px}
-button,label.b{font:inherit;padding:10px 16px;border-radius:14px;border:1px solid var(--ln);background:var(--pn2);color:var(--tx);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-button:active,label.b:active{transform:scale(.97)}
-.pri{background:linear-gradient(135deg,var(--acc),#ff9d5c)!important;color:#2a1700!important;font-weight:700;border:0!important}
-button.on{background:var(--acc2);border-color:transparent;color:#fff}
-.view{display:flex;flex-direction:column;height:100%}
-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#221c3dee}
-.strip{height:4px;flex:none;background:linear-gradient(90deg,#ff6b6b,#ffc857,#48dbfb,#1dd1a1,#a29bfe,#ff9ff3)}
-header h1{margin:0;font-size:22px;flex:1;letter-spacing:.5px;display:flex;align-items:center;gap:10px}
-h2{font-size:13px;margin:18px 0 8px;color:var(--mut);font-weight:600;letter-spacing:.4px}
-#grid{flex:1;overflow:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;align-content:start}
-.card{background:var(--pn);border:1px solid var(--ln);border-radius:20px;overflow:hidden;position:relative;cursor:pointer;box-shadow:0 8px 20px #0006}
-.mat{padding:12px;background:var(--pn2)}
-.mat canvas{width:100%;aspect-ratio:1;object-fit:contain;display:block;background:#0e0b1c;border-radius:6px;box-shadow:0 3px 10px #0008;image-rendering:pixelated}
-.card .in{padding:10px 14px 14px}.card b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar2{height:6px;background:var(--pn2);border-radius:3px;margin-top:8px}.bar2 i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:3px}
-.card small{color:var(--mut)}.card .x{position:absolute;top:8px;right:8px;padding:4px 10px;background:#000a;border-radius:20px}
-.empty{grid-column:1/-1;text-align:center;color:var(--mut);padding:70px 20px}
-#stage{flex:1;position:relative;min-height:0}
-#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-.float{position:absolute;display:flex;gap:6px;padding:6px;background:#221c3dd9;border:1px solid var(--ln);border-radius:18px;backdrop-filter:blur(8px);z-index:2}
-#tools{top:10px;left:50%;transform:translateX(-50%)}
-#zoomb{right:10px;top:50%;transform:translateY(-50%);flex-direction:column}
-#pal{display:flex;gap:7px;overflow-x:auto;padding:9px;background:#221c3df2}
-.sw{flex:none;width:56px;height:56px;border-radius:14px;border:3px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;line-height:1.1;box-shadow:inset 0 0 0 1px #0004}
-.sw small{font-size:10px;font-weight:400}.sw.sel{border-color:#fff;box-shadow:0 0 0 3px var(--acc2)}.sw.done{opacity:.3}
-#ttl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
-#pct{color:var(--acc);font-weight:700;min-width:50px;text-align:right}
-#nwb{flex:1;overflow:auto;padding:4px 16px 30px;display:grid;gap:0 24px;grid-template-columns:1fr;align-content:start}
-@media(min-width:820px){#nwb{grid-template-columns:1fr 1fr}}
-.panel{background:var(--pn);border:1px solid var(--ln);border-radius:20px;padding:14px;margin-top:14px}
-#cbox{display:flex;justify-content:center}
-#cc{border-radius:6px;touch-action:none;cursor:crosshair;background:#0e0b1c;box-shadow:0 6px 18px #0008}
-#pv{display:block;max-width:100%;max-height:46vh;margin:10px auto 0;border-radius:10px;background:#0e0b1c;image-rendering:pixelated;transition:opacity .2s}
-.row{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}.row>span{color:var(--mut)}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chips button{padding:6px 12px;font-size:13px}
-input[type=range]{flex:1;min-width:140px;height:34px;accent-color:var(--acc)}
-input[type=number]{width:84px;font:inherit;padding:9px;border-radius:12px;border:1px solid var(--ln);background:var(--pn2);color:var(--tx);text-align:center}
-.lbl{display:flex;justify-content:space-between;color:var(--mut);font-size:12px}
-#dim{font-size:20px;font-weight:700;color:var(--acc)}
-#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:linear-gradient(135deg,var(--acc),#ff9d5c);color:#2a1700;font-weight:700;padding:11px 22px;border-radius:30px;z-index:9;box-shadow:0 6px 20px #0008}
-</style></head><body>
+/* ---------- Farben & Grundlayout ---------- */
+:root {
+  --bg: #16122a;
+  --pn: #221c3d;
+  --pn2: #2f2752;
+  --acc: #ffc857;
+  --acc2: #ff6b9d;
+  --tx: #f1eefc;
+  --mut: #9d95c4;
+  --ln: #ffffff18;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  color: var(--tx);
+  font:
+    15px/1.35 "Trebuchet MS",
+    system-ui,
+    sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  background: var(--bg) radial-gradient(#ffffff0f 1.2px, transparent 1.3px) 0 0/20px 20px;
+}
+button,
+label.b {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--ln);
+  background: var(--pn2);
+  color: var(--tx);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+button:active,
+label.b:active {
+  transform: scale(.97);
+}
+.pri {
+  background:
+    linear-gradient(
+      135deg,
+      var(--acc),
+      #ff9d5c) !important;
+  color: #2a1700 !important;
+  font-weight: 700;
+  border: 0 !important;
+}
+button.on {
+  background: var(--acc2);
+  border-color: transparent;
+  color: #fff;
+}
 
+/* ---------- Gemeinsame Bausteine (Ansichten, Kopfzeile) ---------- */
+.view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #221c3dee;
+}
+.strip {
+  height: 4px;
+  flex: none;
+  background:
+    linear-gradient(
+      90deg,
+      #ff6b6b,
+      #ffc857,
+      #48dbfb,
+      #1dd1a1,
+      #a29bfe,
+      #ff9ff3);
+}
+header h1 {
+  margin: 0;
+  font-size: 22px;
+  flex: 1;
+  letter-spacing: .5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h2 {
+  font-size: 13px;
+  margin: 18px 0 8px;
+  color: var(--mut);
+  font-weight: 600;
+  letter-spacing: .4px;
+}
+
+/* ---------- Galerie ---------- */
+#grid {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+.card {
+  background: var(--pn);
+  border: 1px solid var(--ln);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 8px 20px #0006;
+}
+.mat {
+  padding: 12px;
+  background: var(--pn2);
+}
+.mat canvas {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  display: block;
+  background: #0e0b1c;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px #0008;
+  image-rendering: pixelated;
+}
+.card .in {
+  padding: 10px 14px 14px;
+}
+.card b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bar2 {
+  height: 6px;
+  background: var(--pn2);
+  border-radius: 3px;
+  margin-top: 8px;
+}
+.bar2 i {
+  display: block;
+  height: 100%;
+  background:
+    linear-gradient(
+      90deg,
+      var(--acc2),
+      var(--acc));
+  border-radius: 3px;
+}
+.card small {
+  color: var(--mut);
+}
+.card .x {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  background: #000a;
+  border-radius: 20px;
+}
+.empty {
+  grid-column: 1/-1;
+  text-align: center;
+  color: var(--mut);
+  padding: 70px 20px;
+}
+
+/* ---------- Malbildschirm ---------- */
+#stage {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+#cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.float {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: #221c3dd9;
+  border: 1px solid var(--ln);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+#dbgp {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  margin: 0;
+  padding: 8px 10px;
+  background: #000c;
+  border-radius: 10px;
+  font: 12px/1.4 monospace;
+  color: #9ff;
+  z-index: 3;
+  pointer-events: none;
+  max-width: 75%;
+  white-space: pre-wrap;
+}
+#tools {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#zoomb {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+#pal {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 9px;
+  background: #221c3df2;
+}
+.sw {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow: inset 0 0 0 1px #0004;
+}
+.sw small {
+  font-size: 10px;
+  font-weight: 400;
+}
+.sw.sel {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--acc2);
+}
+.sw.done {
+  opacity: .3;
+}
+#ttl {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+}
+#pct {
+  color: var(--acc);
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ---------- Neues Bild ---------- */
+#nwb {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 16px 30px;
+  display: grid;
+  gap: 0 24px;
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+@media (min-width: 820px) {
+  #nwb {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.panel {
+  background: var(--pn);
+  border: 1px solid var(--ln);
+  border-radius: 20px;
+  padding: 14px;
+  margin-top: 14px;
+}
+#cbox {
+  display: flex;
+  justify-content: center;
+}
+#cc {
+  border-radius: 6px;
+  touch-action: none;
+  cursor: crosshair;
+  background: #0e0b1c;
+  box-shadow: 0 6px 18px #0008;
+}
+#pv {
+  display: block;
+  max-width: 100%;
+  max-height: 46vh;
+  margin: 10px auto 0;
+  border-radius: 10px;
+  background: #0e0b1c;
+  image-rendering: pixelated;
+  transition: opacity .2s;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.row > span {
+  color: var(--mut);
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.chips button {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+input[type=range] {
+  flex: 1;
+  min-width: 140px;
+  height: 34px;
+  accent-color: var(--acc);
+}
+input[type=number] {
+  width: 84px;
+  font: inherit;
+  padding: 9px;
+  border-radius: 12px;
+  border: 1px solid var(--ln);
+  background: var(--pn2);
+  color: var(--tx);
+  text-align: center;
+}
+.lbl {
+  display: flex;
+  justify-content: space-between;
+  color: var(--mut);
+  font-size: 12px;
+}
+#dim {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--acc);
+}
+
+/* ---------- Meldungen ---------- */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(
+      135deg,
+      var(--acc),
+      #ff9d5c);
+  color: #2a1700;
+  font-weight: 700;
+  padding: 11px 22px;
+  border-radius: 30px;
+  z-index: 9;
+  box-shadow: 0 6px 20px #0008;
+}
+</style></head>
+<body>
+<!-- ================= GALERIE ================= -->
 <div id="gal" class="view">
- <header><h1><svg width="30" height="30" viewBox="0 0 3 3"><path fill="#ff6b6b" d="M0 0h1v1H0z"/><path fill="#ffc857" d="M1 0h1v1H1z"/><path fill="#48dbfb" d="M2 0h1v1H2z"/><path fill="#1dd1a1" d="M0 1h1v1H0z"/><path fill="#fff" d="M1 1h1v1H1z"/><path fill="#a29bfe" d="M2 1h1v1H2z"/><path fill="#ff9ff3" d="M0 2h1v1H0z"/><path fill="#ff9d5c" d="M1 2h1v1H1z"/><path fill="#54a0ff" d="M2 2h1v1H2z"/></svg>Zahlenmaler</h1><button id="new" class="pri">＋ Neues Bild</button></header>
- <div class="strip"></div>
- <div id="grid"></div>
+  <header>
+    <h1>
+      <svg width="30" height="30" viewBox="0 0 3 3">
+        <path fill="#ff6b6b" d="M0 0h1v1H0z"/>
+        <path fill="#ffc857" d="M1 0h1v1H1z"/>
+        <path fill="#48dbfb" d="M2 0h1v1H2z"/>
+        <path fill="#1dd1a1" d="M0 1h1v1H0z"/>
+        <path fill="#fff" d="M1 1h1v1H1z"/>
+        <path fill="#a29bfe" d="M2 1h1v1H2z"/>
+        <path fill="#ff9ff3" d="M0 2h1v1H0z"/>
+        <path fill="#ff9d5c" d="M1 2h1v1H1z"/>
+        <path fill="#54a0ff" d="M2 2h1v1H2z"/>
+      </svg>Zahlenmaler</h1>
+    <button id="new" class="pri">＋ Neues Bild</button>
+  </header>
+  <div class="strip"></div>
+  <div id="grid"></div>
 </div>
 
+<!-- ================= NEUES BILD ================= -->
 <div id="nw" class="view" hidden>
- <header><button id="nback">‹ Zurück</button><h1>Neues Bild</h1><button id="use" class="pri">Nutzen ✓</button></header>
- <div class="strip"></div>
- <div id="nwb">
-  <div>
-   <div class="panel">
-    <label class="b pri">🖼 Bild aus Galerie wählen<input id="file" type="file" accept="image/*" hidden></label> <div id="fn" style="color:var(--mut);margin-top:8px;font-size:13px">Noch kein Bild gewählt</div>
-    <h2>BILDAUSSCHNITT · ziehe den Rahmen auf den Teil, der gemalt werden soll</h2>
-    <div id="cbox"><canvas id="cc" width="10" height="10"></canvas></div>
-    <div class="row"><span>Zoom</span><input id="zm" type="range" min="1" max="12" step="0.01" value="1"></div><div style="color:var(--mut);font-size:12px">Rahmen verschieben, an den Ecken größer oder kleiner ziehen, oder Zoomregler nutzen. Tippen setzt den Rahmen dorthin.</div>
-    <div class="chips" id="asp"><button data-a="orig" class="on">Original</button><button data-a="1">1:1</button><button data-a="1.3333">4:3</button><button data-a="0.75">3:4</button><button data-a="1.7778">16:9</button><button data-a="0.5625">9:16</button></div>
-   </div>
+  <header>
+    <button id="nback">‹ Zurück</button>
+    <h1>Neues Bild</h1>
+    <button id="use" class="pri">Nutzen ✓</button>
+  </header>
+  <div class="strip"></div>
+  <div id="nwb">
+    <!-- linke Spalte: Bild und Ausschnitt -->
+    <div>
+      <div class="panel">
+        <label class="b pri">🖼 Bild aus Galerie wählen<input id="file" type="file" accept="image/*" hidden></label>
+        <div id="fn" style="color:var(--mut);margin-top:8px;font-size:13px">Noch kein Bild gewählt</div>
+        <h2>BILDAUSSCHNITT · ziehe den Rahmen auf den Teil, der gemalt werden soll</h2>
+        <div id="cbox"><canvas id="cc" width="10" height="10"></canvas></div>
+        <div class="row"><span>Zoom</span><input id="zm" type="range" min="1" max="12" step="0.01" value="1"></div>
+        <div style="color:var(--mut);font-size:12px">Rahmen verschieben, an den Ecken größer oder kleiner ziehen, oder Zoomregler nutzen. Tippen setzt den Rahmen dorthin.</div>
+        <div class="chips" id="asp">
+          <button data-a="orig" class="on">Original</button>
+          <button data-a="1">1:1</button>
+          <button data-a="1.3333">4:3</button>
+          <button data-a="0.75">3:4</button>
+          <button data-a="1.7778">16:9</button>
+          <button data-a="0.5625">9:16</button>
+        </div>
+      </div>
+    </div>
+    <!-- rechte Spalte: Größe, Farben, Vorschau -->
+    <div>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;margin-top:0"><span>Größe</span><span id="dim">200 × 200</span></div>
+        <input id="sl" type="range" min="20" max="500" value="200" style="width:100%">
+        <div class="lbl"><span>leicht</span><span id="cnt"></span><span>schwer</span></div>
+        <div class="row">
+          <span>Breite</span><input id="fw" type="number" min="10" max="500" value="200">
+          <span>Höhe</span><input id="fh" type="number" min="10" max="500" value="200">
+        </div>
+        <div class="row"><span>Farben</span><input id="nc" type="range" min="8" max="200" value="60"><b id="ncv">60</b></div>
+      </div>
+      <div class="panel">
+        <div id="pst" style="color:var(--mut);font-size:13px">Wähle ein Bild, dann erscheint hier die Vorschau.</div>
+        <canvas id="pv" width="1" height="1" hidden></canvas>
+      </div>
+    </div>
   </div>
-  <div>
-   <div class="panel">
-    <div class="row" style="justify-content:space-between;margin-top:0"><span>Größe</span><span id="dim">200 × 200</span></div>
-    <input id="sl" type="range" min="20" max="500" value="200" style="width:100%">
-    <div class="lbl"><span>leicht</span><span id="cnt"></span><span>schwer</span></div>
-    <div class="row"><span>Breite</span><input id="fw" type="number" min="10" max="500" value="200"><span>Höhe</span><input id="fh" type="number" min="10" max="500" value="200"></div>
-    <div class="row"><span>Farben</span><input id="nc" type="range" min="8" max="200" value="60"><b id="ncv">60</b></div>
-   </div>
-   <div class="panel"><div id="pst" style="color:var(--mut);font-size:13px">Wähle ein Bild, dann erscheint hier die Vorschau.</div><canvas id="pv" width="1" height="1" hidden></canvas></div>
-  </div>
- </div>
 </div>
 
+<!-- ================= MALBILDSCHIRM ================= -->
 <div id="ed" class="view" hidden>
- <header><button id="back">‹ Galerie</button><span id="ttl"></span><span id="pct"></span><button id="pen" title="Falsch angemalte Felder werden grau">Strafe: aus</button><button id="fit">⤢ Einpassen</button></header>
- <div class="strip"></div>
- <div id="stage"><canvas id="cv"></canvas>
-  <div class="float" id="tools"><button data-m="0" class="on" title="S-Pen-Knopf gedrückt halten = Bild verschieben">✏️ Stift malt · Knopf = bewegen</button><button data-m="1">👆 Finger malt</button><button data-m="2">✋ Nur bewegen</button></div>
-  <div class="float" id="zoomb"><button id="find" title="Zum nächsten offenen Feld dieser Farbe springen">🎯</button><button id="zi">＋</button><button id="zo">－</button></div>
- </div>
- <div id="pal"></div>
+  <header>
+    <button id="back">‹ Galerie</button>
+    <span id="ttl"></span>
+    <span id="pct"></span>
+    <button id="pen" title="Falsch angemalte Felder werden grau">Strafe: aus</button>
+    <button id="fit">⤢ Einpassen</button>
+  </header>
+  <div class="strip"></div>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <pre id="dbgp" hidden></pre>
+    <div class="float" id="tools">
+      <button data-m="0" class="on" title="S-Pen-Knopf gedrückt halten = Bild verschieben">✏️ Stift malt · Knopf = bewegen</button>
+      <button data-m="1">👆 Finger malt</button>
+      <button data-m="2">✋ Nur bewegen</button>
+    </div>
+    <div class="float" id="zoomb">
+      <button id="dbg" title="Stift-Test anzeigen">🔧</button>
+      <button id="find" title="Zum nächsten offenen Feld dieser Farbe springen">🎯</button>
+      <button id="zi">＋</button>
+      <button id="zo">－</button>
+    </div>
+  </div>
+  <div id="pal"></div>
 </div>
+
 <div id="toast" hidden></div>
 
 <script>
-const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
-let S=null,sel=0,scale=1,minS=.5,ox=0,oy=0,mode=0,dpr=window.devicePixelRatio||1,raf=0,sw=[],dirty=false;
-const lum=p=>p[0]*.3+p[1]*.59+p[2]*.11;
+/*
+  ZAHLENMALER – Malen nach Zahlen mit eigenen Bildern (läuft offline im Browser)
 
-/* ---------- Speicher ---------- */
-const DB=new Promise((res,rej)=>{const r=indexedDB.open('mnz',1);r.onupgradeneeded=()=>r.result.createObjectStore('pics',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
-const tx=async(m,f)=>{const db=await DB;return new Promise((res,rej)=>{const t=db.transaction('pics',m),q=f(t.objectStore('pics'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})};
-const dbPut=o=>tx('readwrite',s=>s.put(o)),dbAll=()=>tx('readonly',s=>s.getAll()),dbDel=id=>tx('readwrite',s=>s.delete(id));
-function save(){if(!S)return;S.updated=Date.now();dbPut({id:S.id,name:S.name,w:S.w,h:S.h,pal:S.pal,idx:S.idx,done:S.done,smudge:S.smudge,mis:S.mis||0,updated:S.updated}).catch(()=>{})}
-function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2500)}
+  ÜBERSICHT
+   1. ZUSTAND & HILFSFUNKTIONEN
+        Globale Variablen (aktuelles Bild S, Ansicht, Werkzeuge) und kleine Helfer.
+   2. SPEICHER (IndexedDB)
+        Bilder und Fortschritt werden lokal im Browser gespeichert (Datenbank "mnz").
+   3. BILD → ZAHLEN
+        Farbreduktion per Median-Cut, Farbtabellen, Mini-Vorschau (Galerie & Neues Bild).
+   4. ANSICHTEN & GALERIE
+        Wechsel zwischen Galerie, "Neues Bild" und Malbildschirm; Galerie-Karten.
+   5. NEUES BILD
+        Bild laden, Ausschnitt-Rahmen, Größe (Breite/Höhe/Farben), Live-Vorschau.
+   6. MALBILDSCHIRM
+        Palette, Zeichnen des Bildes (Render), Malen, Strafmodus-Logik.
+   7. EINGABE
+        Zeiger-Ereignisse: Finger (verschieben/zoomen), Stift (malen; Knopf = verschieben), Maus.
+   8. WERKZEUGE & SCHALTER
+        Werkzeugleiste, Zoomtasten, Strafmodus, Suchknopf, Stift-Test (Diagnose).
+   9. APP-INSTALLATION (PWA)
+        Manifest, Service Worker, Teilen aus der Galerie.
+   10. START
+        Galerie anzeigen und ggf. geteiltes Bild übernehmen.
 
-/* ---------- Bild -> Zahlen ---------- */
-function quant(img,rg,gw,gh,k){
-  const c=document.createElement('canvas');c.width=gw;c.height=gh;const x=c.getContext('2d');
-  x.fillStyle='#fff';x.fillRect(0,0,gw,gh);x.imageSmoothingQuality='high';x.drawImage(img,rg.sx,rg.sy,rg.sw,rg.sh,0,0,gw,gh);
-  const d=x.getImageData(0,0,gw,gh).data,n=gw*gh;
-  const mk=ids=>{const mn=[255,255,255],mx=[0,0,0];for(const i of ids)for(let q=0;q<3;q++){const v=d[i*4+q];if(v<mn[q])mn[q]=v;if(v>mx[q])mx[q]=v}
-    let ch=0,r=-1;for(let q=0;q<3;q++)if(mx[q]-mn[q]>r){r=mx[q]-mn[q];ch=q}return{ids,ch,r}};
-  let boxes=[mk(Array.from({length:n},(_,i)=>i))];
-  while(boxes.length<k){let bi=-1,best=0;
-    boxes.forEach((b,i)=>{const s=b.r*Math.sqrt(b.ids.length);if(b.ids.length>1&&b.r>0&&s>best){best=s;bi=i}});
-    if(bi<0)break;const b=boxes[bi];b.ids.sort((p,q)=>d[p*4+b.ch]-d[q*4+b.ch]);const m=b.ids.length>>1;
-    boxes.splice(bi,1,mk(b.ids.slice(0,m)),mk(b.ids.slice(m)))}
-  const pal=boxes.map(b=>{const s=[0,0,0];for(const i of b.ids)for(let q=0;q<3;q++)s[q]+=d[i*4+q];return s.map(v=>Math.round(v/b.ids.length))});
-  pal.sort((a,b)=>lum(a)-lum(b));
-  const idx=new Uint8Array(n),cache=new Map();
-  for(let i=0;i<n;i++){const r=d[i*4],g=d[i*4+1],b=d[i*4+2],key=r<<16|g<<8|b;let c=cache.get(key);
-    if(c===undefined){let bd=1e9;c=0;for(let j=0;j<pal.length;j++){const p=pal[j],e=(p[0]-r)**2+(p[1]-g)**2+(p[2]-b)**2;if(e<bd){bd=e;c=j}}cache.set(key,c)}idx[i]=c}
-  return{w:gw,h:gh,pal,idx};
+  WICHTIGE GLOBALE DINGE
+   S           aktuelles Bild: {id,name,w,h,pal,idx,done,smudge,mis,...}
+               idx[i] = Farbnummer der Zelle i, done[i] = 1 wenn angemalt
+   sel         gewählte Farbnummer (0-basiert)
+   scale,ox,oy Zoom und Verschiebung im Malbildschirm
+   CI,R        Quellbild und Ausschnitt-Rahmen in "Neues Bild"
+   render()    zeichnet den Malbildschirm; draw() plant einen Render pro Frame
+   $("id")     Kurzform für document.getElementById
+*/
+
+// ======================================================================
+// 1. ZUSTAND & HILFSFUNKTIONEN
+// Globale Variablen (aktuelles Bild S, Ansicht, Werkzeuge) und kleine Helfer.
+// ======================================================================
+const $ = (id) => document.getElementById(id);
+const cv = $("cv");
+const ctx = cv.getContext("2d");
+let S = null;
+let sel = 0;
+let scale = 1;
+let minS = 0.5;
+let ox = 0;
+let oy = 0;
+let mode = 0;
+let dpr = window.devicePixelRatio || 1;
+let raf = 0;
+let sw = [];
+let dirty = false;
+const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
+let ping = null;
+let lastJump = -1;
+let penalty = false;
+let fast = false;
+let fastT = 0;
+let penBtn = false;
+const stroke = /* @__PURE__ */ new Set();
+const SEL32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
+try {
+  penalty = localStorage.getItem("mnz-pen") === "1";
+} catch (e) {
 }
-let ping=null,lastJump=-1,penalty=false;const stroke=new Set();try{penalty=localStorage.getItem('mnz-pen')==='1'}catch(e){}
-const SEL32=(255<<24|104<<16|66<<8|74)>>>0;
-function prep(s){s.rgb32=s.pal.map(p=>(255<<24|p[2]<<16|p[1]<<8|p[0])>>>0);s.gr32=s.pal.map(p=>{const g=Math.round(208+lum(p)/255*36);return(255<<24|(g+4)<<16|g<<8|g)>>>0});s.css=s.pal.map(p=>`rgb(${p})`);s.gr=s.pal.map(p=>{const g=Math.round(208+lum(p)/255*36);return`rgb(${g},${g},${g+4})`});s.left=new Array(s.pal.length).fill(0);
-  for(let i=0;i<s.idx.length;i++)if(!(s.done&&s.done[i]))s.left[s.idx[i]]++}
-function mini(c,s,m,edges){c.width=s.w*m;c.height=s.h*m;const x=c.getContext('2d');
-  for(let y=0;y<s.h;y++)for(let q=0;q<s.w;q++){const i=y*s.w+q;x.fillStyle=s.done&&s.done[i]?s.css[s.idx[i]]:s.gr[s.idx[i]];x.fillRect(q*m,y*m,m,m)}
-  if(edges){x.fillStyle='rgba(30,30,50,.55)';for(let y=0;y<s.h;y++)for(let q=0;q<s.w;q++){const i=y*s.w+q,c0=s.idx[i];
-    if(q+1<s.w&&s.idx[i+1]!==c0)x.fillRect((q+1)*m-1,y*m,1,m);if(y+1<s.h&&s.idx[i+s.w]!==c0)x.fillRect(q*m,(y+1)*m-1,m,1)}}}
 
-/* ---------- Ansichten ---------- */
-function view(v){for(const k of['gal','nw','ed'])$(k).hidden=k!==v}
-async function gallery(){
-  view('gal');const g=$('grid');g.innerHTML='';let recs=[];try{recs=await dbAll()}catch(e){}
-  recs.sort((a,b)=>b.updated-a.updated);
-  if(!recs.length){g.innerHTML='<div class="empty">Noch keine Bilder.<br>Tippe auf „Neues Bild“, um loszulegen.</div>';return}
-  for(const r of recs){prep(r);const t=r.left.reduce((a,b)=>a+b,0),p=Math.floor((r.idx.length-t)/r.idx.length*100);
-    const el=document.createElement('div');el.className='card';const m=document.createElement('div');m.className='mat';const c=document.createElement('canvas');mini(c,r,Math.max(1,Math.floor(300/r.w)),false);m.appendChild(c);el.appendChild(m);
-    el.insertAdjacentHTML('beforeend',`<div class="in"><b></b><small>${r.w}×${r.h} · ${t?p+' % gemalt':'Fertig ✓'}</small><div class="bar2"><i style="width:${p}%"></i></div></div><button class="x">✕</button>`);
-    el.querySelector('b').textContent=r.name;
-    el.onclick=()=>openPic(r);
-    el.querySelector('.x').onclick=async e=>{e.stopPropagation();if(confirm(`„${r.name}“ löschen?`)){await dbDel(r.id);gallery()}};
-    g.appendChild(el)}
+// ======================================================================
+// 2. SPEICHER (IndexedDB)
+// Bilder und Fortschritt werden lokal im Browser gespeichert (Datenbank "mnz").
+// ======================================================================
+const DB = new Promise((res, rej) => {
+  const r = indexedDB.open("mnz", 1);
+  r.onupgradeneeded = () => r.result.createObjectStore("pics", { keyPath: "id" });
+  r.onsuccess = () => res(r.result);
+  r.onerror = () => rej(r.error);
+});
+const tx = async (m, f) => {
+  const db = await DB;
+  return new Promise((res, rej) => {
+    const t = db.transaction("pics", m), q = f(t.objectStore("pics"));
+    t.oncomplete = () => res(q && q.result);
+    t.onerror = () => rej(t.error);
+  });
+};
+const dbPut = (o) => tx("readwrite", (s) => s.put(o));
+const dbAll = () => tx("readonly", (s) => s.getAll());
+const dbDel = (id) => tx("readwrite", (s) => s.delete(id));
+function save() {
+  if (!S) return;
+  S.updated = Date.now();
+  dbPut({ id: S.id, name: S.name, w: S.w, h: S.h, pal: S.pal, idx: S.idx, done: S.done, smudge: S.smudge, mis: S.mis || 0, updated: S.updated }).catch(() => {
+  });
 }
-function cellCol(i){const c=S.idx[i];if(S.done[i])return S.rgb32[c];if(c===sel)return SEL32;const L=S.smudge[i];if(!L)return S.gr32[c];const v=Math.round((S.gr32[c]&255)*(1-.1*L));return(255<<24|(v+4)<<16|v<<8|v)>>>0}
-function refreshOC(){const u=S.u32,n=S.idx.length;for(let i=0;i<n;i++)u[i]=cellCol(i);S.ocDirty=true}
-function buildOC(){const oc=document.createElement('canvas');oc.width=S.w;oc.height=S.h;S.octx=oc.getContext('2d');S.oc=oc;S.img=S.octx.createImageData(S.w,S.h);S.u32=new Uint32Array(S.img.data.buffer);refreshOC()}
-function openPic(r){S=r;prep(S);if(!S.smudge)S.smudge=new Uint8Array(S.idx.length);S.mis=S.mis||0;lastJump=-1;buildOC();view('ed');$('ttl').textContent=S.name;buildPal();resize();fit();pickNext(0);pct()}
-$('back').onclick=()=>{save();S=null;gallery()};
+function toast(t) {
+  const e = $("toast");
+  e.textContent = t;
+  e.hidden = false;
+  clearTimeout(e._t);
+  e._t = setTimeout(() => e.hidden = true, 2500);
+}
 
-/* ---------- Neues Bild: Ausschnitt, Größe, Vorschau ---------- */
-let CI=null,fname='Bild',asp='orig',fa=1,Dw=10,Dh=10,ds=1,R={x:0,y:0,w:1},gw=200,gh=200,tm=0,drag=null;
-const cc=$('cc'),cctx=cc.getContext('2d'),CP=new Map();let cpin=0;
-const maxW=()=>Math.min(CI.width,CI.height*fa),rh=()=>R.w/fa;
-const region=()=>({sx:R.x,sy:R.y,sw:R.w,sh:rh()});
-function st(t,err){const e=$('fn');e.textContent=t;e.style.color=err?'#ff8a8a':'var(--mut)'}
-function clampR(){const m=maxW();R.w=Math.max(m/12,Math.min(m,R.w));R.x=Math.max(0,Math.min(CI.width-R.w,R.x));R.y=Math.max(0,Math.min(CI.height-rh(),R.y));$('zm').value=m/R.w}
-function cropLayout(reset){
-  if(!CI)return;fa=asp==='orig'?CI.width/CI.height:asp;
-  const cw=$('cbox').clientWidth||320,mh=Math.max(240,innerHeight*.45);ds=Math.min(cw/CI.width,mh/CI.height);
-  Dw=Math.round(CI.width*ds);Dh=Math.round(CI.height*ds);dpr=window.devicePixelRatio||1;
-  cc.style.width=Dw+'px';cc.style.height=Dh+'px';cc.width=Math.round(Dw*dpr);cc.height=Math.round(Dh*dpr);
-  if(reset){R.w=maxW();R.x=(CI.width-R.w)/2;R.y=(CI.height-rh())/2}
-  clampR();cropDraw()}
-function cropDraw(){
-  if(!CI)return;const x=cctx;x.setTransform(dpr,0,0,dpr,0,0);x.drawImage(CI,0,0,Dw,Dh);
-  const rx=R.x*ds,ry=R.y*ds,rw=R.w*ds,h=rh()*ds;
-  x.fillStyle='rgba(14,10,30,.66)';x.fillRect(0,0,Dw,ry);x.fillRect(0,ry+h,Dw,Dh-ry-h);x.fillRect(0,ry,rx,h);x.fillRect(rx+rw,ry,Dw-rx-rw,h);
-  x.strokeStyle='rgba(255,255,255,.35)';x.lineWidth=1;x.beginPath();for(let i=1;i<3;i++){x.moveTo(rx+rw*i/3,ry);x.lineTo(rx+rw*i/3,ry+h);x.moveTo(rx,ry+h*i/3);x.lineTo(rx+rw,ry+h*i/3)}x.stroke();
-  x.strokeStyle='#ffc857';x.lineWidth=2.5;x.strokeRect(rx,ry,rw,h);x.fillStyle='#ffc857';
-  for(const [px,py] of[[rx,ry],[rx+rw,ry],[rx,ry+h],[rx+rw,ry+h]])x.fillRect(px-8,py-8,16,16)}
-function setZoom(z){if(!CI)return;const cx=R.x+R.w/2,cy=R.y+rh()/2;R.w=maxW()/Math.max(1,Math.min(12,z));R.x=cx-R.w/2;R.y=cy-rh()/2;clampR();cropDraw();preview()}
-function setDims(k,v){
-  v=Math.max(10,Math.min(500,Math.round(+v)||10));
-  if(k==='w'){gw=v;gh=Math.round(v/fa)}else if(k==='h'){gh=v;gw=Math.round(v*fa)}else if(fa>=1){gw=v;gh=Math.round(v/fa)}else{gh=v;gw=Math.round(v*fa)}
-  gw=Math.max(1,Math.min(500,gw));gh=Math.max(1,Math.min(500,gh));
-  $('fw').value=gw;$('fh').value=gh;$('sl').value=Math.max(gw,gh);$('dim').textContent=`${gw} × ${gh}`;$('cnt').textContent=(gw*gh).toLocaleString('de-DE')+' Pixel';preview()}
-function preview(){
-  if(!CI)return;clearTimeout(tm);$('pv').style.opacity=.35;$('pst').textContent='Berechne Vorschau …';
-  tm=setTimeout(()=>{try{const q=quant(CI,region(),gw,gh,+$('nc').value);prep(q);$('pv').hidden=false;mini($('pv'),q,Math.max(1,Math.floor(600/Math.max(gw,gh))),true);$('pst').textContent='VORSCHAU · so sieht das Malbild ungefähr aus';$('pv').style.opacity=1}
-    catch(err){$('pst').textContent='Vorschau-Fehler: '+err.message}},250)}
-$('new').onclick=()=>{view('nw');cropLayout(false)};
-$('nback').onclick=gallery;
-const loadImg=src=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error('img'));im.src=src});
-async function decode(f){
-  try{return await createImageBitmap(f)}catch(e){}
-  try{const u=URL.createObjectURL(f);try{return await loadImg(u)}finally{URL.revokeObjectURL(u)}}catch(e){}
-  try{const d=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(f)});return await loadImg(d)}catch(e){}
-  throw new Error(`Die Datei lässt sich nicht lesen (Typ: ${f.type||'unbekannt'}, ${(f.size/1e6).toFixed(2)} MB). Möglich: beschädigt, HEIC/HEIF oder noch nicht ganz heruntergeladen (Cloud). Öffne sie testweise im Browser oder speichere sie als JPG/PNG neu.`)}
-async function handleFile(f){fname=(f.name||'Bild').replace(/\.[^.]+$/,'')||'Bild';st('Lade Bild …');
-  try{const im=await decode(f),W=im.naturalWidth||im.width,H=im.naturalHeight||im.height;if(!W||!H)throw new Error('Das Bild hat keine Größe (leer oder beschädigt).');
-    const k=Math.min(1,3000/Math.max(W,H)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(W*k));c.height=Math.max(1,Math.round(H*k));
-    c.getContext('2d').drawImage(im,0,0,c.width,c.height);if(im.close)im.close();
-    CI=c;cropLayout(true);setDims('l',Math.max(gw,gh));st(`${f.name||fname} · ${W}×${H}`)}
-  catch(err){st(err.message,1)}}
-$('file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)handleFile(f)};
-$('asp').onclick=e=>{const b=e.target.closest('button');if(!b)return;asp=b.dataset.a==='orig'?'orig':parseFloat(b.dataset.a);
-  document.querySelectorAll('#asp button').forEach(x=>x.classList.toggle('on',x===b));
-  if(!CI){toast('Wähle zuerst ein Bild');return}cropLayout(true);setDims('l',Math.max(gw,gh))};
-$('zm').oninput=()=>setZoom(+$('zm').value);
-$('sl').oninput=()=>setDims('l',$('sl').value);
-$('fw').onchange=()=>setDims('w',$('fw').value);$('fh').onchange=()=>setDims('h',$('fh').value);
-$('nc').oninput=()=>{$('ncv').textContent=$('nc').value;preview()};
-$('use').onclick=()=>{if(!CI){toast('Wähle zuerst ein Bild');return}
-  const b=$('use');b.textContent='Rechne …';setTimeout(()=>{try{const q=quant(CI,region(),gw,gh,+$('nc').value);q.id=Date.now();q.name=fname;q.done=new Uint8Array(q.idx.length);S=q;save();openPic(S)}catch(err){toast('Fehler: '+err.message)}b.textContent='Nutzen ✓'},30)};
-/* Rahmen ziehen */
-cc.addEventListener('pointerdown',e=>{if(!CI)return;cc.setPointerCapture(e.pointerId);CP.set(e.pointerId,{x:e.offsetX,y:e.offsetY});cpin=0;
-  if(CP.size>1){drag=null;return}
-  const x=e.offsetX,y=e.offsetY,rx=R.x*ds,ry=R.y*ds,rw=R.w*ds,h=rh()*ds,cs=[[rx,ry],[rx+rw,ry],[rx,ry+h],[rx+rw,ry+h]];
-  const hit=cs.findIndex(c=>Math.hypot(c[0]-x,c[1]-y)<28);
-  if(hit>=0){const o=3-hit;drag={t:'rs',ax:o%2?R.x+R.w:R.x,ay:o>=2?R.y+rh():R.y}}
-  else{if(x<rx||x>rx+rw||y<ry||y>ry+h){R.x=x/ds-R.w/2;R.y=y/ds-rh()/2;clampR()}drag={t:'mv',lx:x,ly:y}}
-  cropDraw()});
-cc.addEventListener('pointermove',e=>{const p=CP.get(e.pointerId);if(!p||!CI)return;const x=e.offsetX,y=e.offsetY;p.x=x;p.y=y;
-  if(CP.size===2){const [u,v]=[...CP.values()],d=Math.hypot(u.x-v.x,u.y-v.y);if(cpin){const cx=R.x+R.w/2,cy=R.y+rh()/2;R.w*=cpin/d;R.x=cx-R.w/2;R.y=cy-rh()/2;clampR();cropDraw();preview()}cpin=d;return}
-  if(!drag)return;
-  if(drag.t==='mv'){R.x+=(x-drag.lx)/ds;R.y+=(y-drag.ly)/ds;drag.lx=x;drag.ly=y;clampR()}
-  else{const px=x/ds,py=y/ds,dx=px>=drag.ax?1:-1,dy=py>=drag.ay?1:-1,aw=dx>0?CI.width-drag.ax:drag.ax,ah=dy>0?CI.height-drag.ay:drag.ay;
-    let w=Math.max(Math.abs(px-drag.ax),Math.abs(py-drag.ay)*fa);w=Math.max(maxW()/12,Math.min(w,aw,ah*fa));
-    R.w=w;R.x=dx>0?drag.ax:drag.ax-w;R.y=dy>0?drag.ay:drag.ay-w/fa;clampR()}
-  cropDraw();preview()});
-const cup=e=>{CP.delete(e.pointerId);cpin=0;drag=null};cc.addEventListener('pointerup',cup);cc.addEventListener('pointercancel',cup);
-cc.addEventListener('wheel',e=>{e.preventDefault();if(CI)setZoom(maxW()/R.w*(e.deltaY<0?1.15:1/1.15))},{passive:false});
+// ======================================================================
+// 3. BILD → ZAHLEN
+// Farbreduktion per Median-Cut, Farbtabellen, Mini-Vorschau (Galerie & Neues Bild).
+// ======================================================================
+function quant(img, rg, gw2, gh2, k) {
+  const c = document.createElement("canvas");
+  c.width = gw2;
+  c.height = gh2;
+  const x = c.getContext("2d");
+  x.fillStyle = "#fff";
+  x.fillRect(0, 0, gw2, gh2);
+  x.imageSmoothingQuality = "high";
+  x.drawImage(img, rg.sx, rg.sy, rg.sw, rg.sh, 0, 0, gw2, gh2);
+  const d = x.getImageData(0, 0, gw2, gh2).data, n = gw2 * gh2;
+  const mk = (ids) => {
+    const mn = [255, 255, 255], mx = [0, 0, 0];
+    for (const i of ids) for (let q = 0; q < 3; q++) {
+      const v = d[i * 4 + q];
+      if (v < mn[q]) mn[q] = v;
+      if (v > mx[q]) mx[q] = v;
+    }
+    let ch = 0, r = -1;
+    for (let q = 0; q < 3; q++) if (mx[q] - mn[q] > r) {
+      r = mx[q] - mn[q];
+      ch = q;
+    }
+    return { ids, ch, r };
+  };
+  let boxes = [mk(Array.from({ length: n }, (_, i) => i))];
+  while (boxes.length < k) {
+    let bi = -1, best = 0;
+    boxes.forEach((b2, i) => {
+      const s = b2.r * Math.sqrt(b2.ids.length);
+      if (b2.ids.length > 1 && b2.r > 0 && s > best) {
+        best = s;
+        bi = i;
+      }
+    });
+    if (bi < 0) break;
+    const b = boxes[bi];
+    b.ids.sort((p, q) => d[p * 4 + b.ch] - d[q * 4 + b.ch]);
+    const m = b.ids.length >> 1;
+    boxes.splice(bi, 1, mk(b.ids.slice(0, m)), mk(b.ids.slice(m)));
+  }
+  const pal = boxes.map((b) => {
+    const s = [0, 0, 0];
+    for (const i of b.ids) for (let q = 0; q < 3; q++) s[q] += d[i * 4 + q];
+    return s.map((v) => Math.round(v / b.ids.length));
+  });
+  pal.sort((a, b) => lum(a) - lum(b));
+  const idx = new Uint8Array(n), cache = /* @__PURE__ */ new Map();
+  for (let i = 0; i < n; i++) {
+    const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2], key = r << 16 | g << 8 | b;
+    let c2 = cache.get(key);
+    if (c2 === void 0) {
+      let bd = 1e9;
+      c2 = 0;
+      for (let j = 0; j < pal.length; j++) {
+        const p = pal[j], e = (p[0] - r) ** 2 + (p[1] - g) ** 2 + (p[2] - b) ** 2;
+        if (e < bd) {
+          bd = e;
+          c2 = j;
+        }
+      }
+      cache.set(key, c2);
+    }
+    idx[i] = c2;
+  }
+  return { w: gw2, h: gh2, pal, idx };
+}
+function prep(s) {
+  s.rgb32 = s.pal.map((p) => (255 << 24 | p[2] << 16 | p[1] << 8 | p[0]) >>> 0);
+  s.gr32 = s.pal.map((p) => {
+    const g = Math.round(208 + lum(p) / 255 * 36);
+    return (255 << 24 | g + 4 << 16 | g << 8 | g) >>> 0;
+  });
+  s.css = s.pal.map((p) => `rgb(${p})`);
+  s.gr = s.pal.map((p) => {
+    const g = Math.round(208 + lum(p) / 255 * 36);
+    return `rgb(${g},${g},${g + 4})`;
+  });
+  s.left = new Array(s.pal.length).fill(0);
+  for (let i = 0; i < s.idx.length; i++) if (!(s.done && s.done[i])) s.left[s.idx[i]]++;
+}
+function mini(c, s, m, edges) {
+  c.width = s.w * m;
+  c.height = s.h * m;
+  const x = c.getContext("2d");
+  for (let y = 0; y < s.h; y++) for (let q = 0; q < s.w; q++) {
+    const i = y * s.w + q;
+    x.fillStyle = s.done && s.done[i] ? s.css[s.idx[i]] : s.gr[s.idx[i]];
+    x.fillRect(q * m, y * m, m, m);
+  }
+  if (edges) {
+    x.fillStyle = "rgba(30,30,50,.55)";
+    for (let y = 0; y < s.h; y++) for (let q = 0; q < s.w; q++) {
+      const i = y * s.w + q, c0 = s.idx[i];
+      if (q + 1 < s.w && s.idx[i + 1] !== c0) x.fillRect((q + 1) * m - 1, y * m, 1, m);
+      if (y + 1 < s.h && s.idx[i + s.w] !== c0) x.fillRect(q * m, (y + 1) * m - 1, m, 1);
+    }
+  }
+}
 
-/* ---------- Malen ---------- */
-function buildPal(){const P=$('pal');P.innerHTML='';sw=S.pal.map((p,i)=>{const e=document.createElement('div');e.className='sw';e.style.background=`rgb(${p})`;
-  e.style.color=lum(p)>140?'#000':'#fff';e.onclick=()=>choose(i);P.appendChild(e);return e});sw.forEach((_,i)=>swUpd(i))}
-function swUpd(i){const e=sw[i];e.innerHTML=S.left[i]?`${i+1}<small>${S.left[i]}</small>`:`${i+1}<small>✓</small>`;e.classList.toggle('done',!S.left[i]);e.classList.toggle('sel',i===sel)}
-function choose(i){const o=sel;sel=i;lastJump=-1;if(S.u32)refreshOC();if(sw[o])swUpd(o);swUpd(i);sw[i].scrollIntoView({inline:'center',block:'nearest'});draw()}
-function pickNext(f){for(let k=0;k<S.pal.length;k++){const i=(f+k)%S.pal.length;if(S.left[i]){choose(i);return}}choose(0)}
-function pct(){const t=S.idx.length,l=S.left.reduce((a,b)=>a+b,0);$('pct').textContent=Math.floor((t-l)/t*100)+' %'+(penalty&&S.mis?` · ✗ ${S.mis}`:'');return l}
-function resize(){dpr=window.devicePixelRatio||1;cv.width=cv.clientWidth*dpr;cv.height=cv.clientHeight*dpr;draw()}
-function fit(){if(!S)return;const W=cv.clientWidth,H=cv.clientHeight;scale=Math.min(W/S.w,H/S.h)*.98;minS=scale*.7;ox=(W-S.w*scale)/2;oy=(H-S.h*scale)/2;draw()}
-function draw(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render)}
-function render(){
-  const W=cv.clientWidth,H=cv.clientHeight;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#0e0b1c';ctx.fillRect(0,0,W,H);if(!S||$('ed').hidden)return;
-  const x0=Math.max(0,Math.floor(-ox/scale)),y0=Math.max(0,Math.floor(-oy/scale)),x1=Math.min(S.w,Math.ceil((W-ox)/scale)),y1=Math.min(S.h,Math.ceil((H-oy)/scale));
-  const num=scale>=15,edge=scale>=3&&(x1-x0)*(y1-y0)<=40000;
-  if(S.ocDirty){S.octx.putImageData(S.img,0,0);S.ocDirty=false}
-  ctx.imageSmoothingEnabled=scale<1.5;ctx.drawImage(S.oc,ox,oy,S.w*scale,S.h*scale);
-  if(edge){ctx.fillStyle='rgba(30,30,50,.5)';const t=scale>=10?1.5:1;
-    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*S.w+x,c=S.idx[i];
-      if(x+1<S.w&&S.idx[i+1]!==c&&(!S.done[i]||!S.done[i+1]))ctx.fillRect(ox+(x+1)*scale-t/2,oy+y*scale,t,scale);
-      if(y+1<S.h&&S.idx[i+S.w]!==c&&(!S.done[i]||!S.done[i+S.w]))ctx.fillRect(ox+x*scale,oy+(y+1)*scale-t/2,scale,t)}}
-  if(scale>=10){ctx.strokeStyle='rgba(0,0,0,.07)';ctx.lineWidth=1;ctx.beginPath();
-    for(let x=x0;x<=x1;x++){ctx.moveTo(ox+x*scale,oy+y0*scale);ctx.lineTo(ox+x*scale,oy+y1*scale)}
-    for(let y=y0;y<=y1;y++){ctx.moveTo(ox+x0*scale,oy+y*scale);ctx.lineTo(ox+x1*scale,oy+y*scale)}ctx.stroke()}
-  if(num){ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`600 ${Math.round(scale*.42)}px system-ui`;
-    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*S.w+x;if(S.done[i])continue;const c=S.idx[i];ctx.fillStyle=c===sel?'#fff':'#4a4660';ctx.fillText(c+1,ox+x*scale+scale/2,oy+y*scale+scale/2)}}
-  if(ping){const t=performance.now()-ping.t;if(t<2500){ctx.strokeStyle='#ffc857';ctx.lineWidth=4;ctx.beginPath();ctx.arc(ox+ping.x*scale,oy+ping.y*scale,scale*(.8+.3*Math.sin(t/110)),0,7);ctx.stroke();draw()}else ping=null}
+// ======================================================================
+// 4. ANSICHTEN & GALERIE
+// Wechsel zwischen Galerie, "Neues Bild" und Malbildschirm; Galerie-Karten.
+// ======================================================================
+function view(v) {
+  for (const k of ["gal", "nw", "ed"]) $(k).hidden = k !== v;
 }
-function zoomAt(cx,cy,f){const ns=Math.max(minS,Math.min(80,scale*f));f=ns/scale;ox=cx-(cx-ox)*f;oy=cy-(cy-oy)*f;scale=ns}
-function done(){if(!pct())toast('Bild fertig! 🎉')}
-function paintAt(sx,sy){const x=Math.floor((sx-ox)/scale),y=Math.floor((sy-oy)/scale);if(x<0||y<0||x>=S.w||y>=S.h)return;
-  const i=y*S.w+x;if(S.done[i])return;
-  if(S.idx[i]!==sel){if(penalty&&!stroke.has(i)){stroke.add(i);if(S.smudge[i]<3)S.smudge[i]++;S.mis++;S.u32[i]=cellCol(i);S.ocDirty=true;dirty=true}return}
-  S.done[i]=1;S.left[sel]--;dirty=true;S.u32[i]=S.rgb32[sel];S.ocDirty=true;
-  if(!S.left[sel]){swUpd(sel);pickNext(sel+1)}else swUpd(sel)}
-function paintLine(a,b,c,d){const st=Math.max(1,Math.ceil(Math.hypot(c-a,d-b)/Math.max(1,scale/2)));for(let s=1;s<=st;s++)paintAt(a+(c-a)*s/st,b+(d-b)*s/st);draw();done()}
-const P=new Map();let pin=null;
-const role=e=>e.pointerType==='touch'?(mode===1?'paint':'pan'):((mode===2||(e.buttons&38))?'pan':'paint');
-const touches=()=>[...P.values()].filter(p=>p.t==='touch');
-cv.addEventListener('pointerdown',e=>{if(!S)return;try{cv.setPointerCapture(e.pointerId)}catch(x){}stroke.clear();P.set(e.pointerId,{x:e.offsetX,y:e.offsetY,t:e.pointerType});
-  if(touches().length===2){pin=null;return}if(role(e)==='paint'){paintAt(e.offsetX,e.offsetY);draw();done()}});
-cv.addEventListener('pointermove',e=>{const p=P.get(e.pointerId);if(!p||!S)return;const a=p.x,b=p.y;p.x=e.offsetX;p.y=e.offsetY;const ts=touches();
-  if(ts.length===2&&p.t==='touch'){const d=Math.hypot(ts[0].x-ts[1].x,ts[0].y-ts[1].y),cx=(ts[0].x+ts[1].x)/2,cy=(ts[0].y+ts[1].y)/2;
-    if(pin){zoomAt(cx,cy,d/pin.d);ox+=cx-pin.cx;oy+=cy-pin.cy}pin={d,cx,cy};draw();return}
-  pin=null;if(role(e)==='pan'){ox+=p.x-a;oy+=p.y-b;draw()}else paintLine(a,b,p.x,p.y)});
-const up=e=>{P.delete(e.pointerId);pin=null;stroke.clear();pct();if(dirty){dirty=false;save()}};
-cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,e.deltaY<0?1.2:1/1.2);draw()},{passive:false});
-$('tools').onclick=e=>{const b=e.target.closest('button');if(!b)return;mode=+b.dataset.m;document.querySelectorAll('#tools button').forEach(x=>x.classList.toggle('on',x===b))};
-$('zi').onclick=()=>{zoomAt(cv.clientWidth/2,cv.clientHeight/2,1.4);draw()};
-$('zo').onclick=()=>{zoomAt(cv.clientWidth/2,cv.clientHeight/2,1/1.4);draw()};
-$('fit').onclick=fit;
-function penLabel(){$('pen').textContent='Strafe: '+(penalty?'an':'aus');$('pen').classList.toggle('on',penalty)}
-$('pen').onclick=()=>{penalty=!penalty;try{localStorage.setItem('mnz-pen',penalty?'1':'0')}catch(e){}penLabel();if(S)pct();toast(penalty?'Strafmodus an: falsche Felder werden grau':'Strafmodus aus')};penLabel();
-$('find').onclick=()=>{if(!S)return;if(!S.left[sel]){toast('Diese Farbe ist fertig ✓');return}
-  const W=cv.clientWidth,H=cv.clientHeight,cx=(W/2-ox)/scale,cy=(H/2-oy)/scale;let best=-1,bd=1e18;
-  for(let i=0;i<S.idx.length;i++){if(S.idx[i]!==sel||S.done[i]||i===lastJump)continue;const x=i%S.w+.5,y=((i/S.w)|0)+.5,d=(x-cx)**2+(y-cy)**2;if(d<bd){bd=d;best=i}}
-  if(best<0)best=lastJump;lastJump=best;const x=best%S.w+.5,y=((best/S.w)|0)+.5;
-  scale=Math.min(80,Math.max(scale,22));ox=W/2-x*scale;oy=H/2-y*scale;ping={x,y,t:performance.now()};
-  toast(`Noch ${S.left[sel]} offen bei Nr. ${sel+1}`);draw()};
-cv.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
-window.addEventListener('resize',()=>{if(!$('ed').hidden){resize();fit()}if(!$('nw').hidden)cropLayout(false)});
-/* ---------- App-Installation (nur wenn über https geöffnet) ---------- */
-if(location.protocol.startsWith('http')){
-  const l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+async function gallery() {
+  view("gal");
+  const g = $("grid");
+  g.innerHTML = "";
+  let recs = [];
+  try {
+    recs = await dbAll();
+  } catch (e) {
+  }
+  recs.sort((a, b) => b.updated - a.updated);
+  if (!recs.length) {
+    g.innerHTML = '<div class="empty">Noch keine Bilder.<br>Tippe auf „Neues Bild“, um loszulegen.</div>';
+    return;
+  }
+  for (const r of recs) {
+    prep(r);
+    const t = r.left.reduce((a, b) => a + b, 0), p = Math.floor((r.idx.length - t) / r.idx.length * 100);
+    const el = document.createElement("div");
+    el.className = "card";
+    const m = document.createElement("div");
+    m.className = "mat";
+    const c = document.createElement("canvas");
+    mini(c, r, Math.max(1, Math.floor(300 / r.w)), false);
+    m.appendChild(c);
+    el.appendChild(m);
+    el.insertAdjacentHTML("beforeend", `<div class="in"><b></b><small>${r.w}×${r.h} · ${t ? p + " % gemalt" : "Fertig ✓"}</small><div class="bar2"><i style="width:${p}%"></i></div></div><button class="x">✕</button>`);
+    el.querySelector("b").textContent = r.name;
+    el.onclick = () => openPic(r);
+    el.querySelector(".x").onclick = async (e) => {
+      e.stopPropagation();
+      if (confirm(`„${r.name}“ löschen?`)) {
+        await dbDel(r.id);
+        gallery();
+      }
+    };
+    g.appendChild(el);
+  }
 }
-async function takeShared(){
-  if(!/[?&]shared=1/.test(location.search)||!window.caches)return;
-  try{const c=await caches.open('zm-share'),r=await c.match('shared');if(!r)return;const b=await r.blob();await c.delete('shared');
-    history.replaceState(null,'',location.pathname);$('new').click();
-    handleFile(new File([b],decodeURIComponent(r.headers.get('X-Name')||'Bild'),{type:b.type}))}catch(e){}}
+function cellCol(i) {
+  const c = S.idx[i];
+  if (S.done[i]) return S.rgb32[c];
+  if (c === sel) return SEL32;
+  const L = S.smudge[i];
+  if (!L) return S.gr32[c];
+  const v = Math.round((S.gr32[c] & 255) * (1 - 0.1 * L));
+  return (255 << 24 | v + 4 << 16 | v << 8 | v) >>> 0;
+}
+function markDirty(i) {
+  const x = i % S.w, y = i / S.w | 0, d = S.dirty;
+  if (!d) S.dirty = { x0: x, y0: y, x1: x, y1: y };
+  else {
+    if (x < d.x0) d.x0 = x;
+    if (y < d.y0) d.y0 = y;
+    if (x > d.x1) d.x1 = x;
+    if (y > d.y1) d.y1 = y;
+  }
+}
+function refreshOC() {
+  const u = S.u32, n = S.idx.length;
+  for (let i = 0; i < n; i++) u[i] = cellCol(i);
+  S.dirty = { x0: 0, y0: 0, x1: S.w - 1, y1: S.h - 1 };
+}
+function buildOC() {
+  const oc = document.createElement("canvas");
+  oc.width = S.w;
+  oc.height = S.h;
+  S.octx = oc.getContext("2d");
+  S.oc = oc;
+  S.img = S.octx.createImageData(S.w, S.h);
+  S.u32 = new Uint32Array(S.img.data.buffer);
+  refreshOC();
+}
+function openPic(r) {
+  S = r;
+  prep(S);
+  if (!S.smudge) S.smudge = new Uint8Array(S.idx.length);
+  S.mis = S.mis || 0;
+  lastJump = -1;
+  buildOC();
+  view("ed");
+  $("ttl").textContent = S.name;
+  buildPal();
+  resize();
+  fit();
+  pickNext(0);
+  pct();
+}
+$("back").onclick = () => {
+  save();
+  S = null;
+  gallery();
+};
+
+// ======================================================================
+// 5. NEUES BILD
+// Bild laden, Ausschnitt-Rahmen, Größe (Breite/Höhe/Farben), Live-Vorschau.
+// ======================================================================
+let CI = null;
+let fname = "Bild";
+let asp = "orig";
+let fa = 1;
+let Dw = 10;
+let Dh = 10;
+let ds = 1;
+let R = { x: 0, y: 0, w: 1 };
+let gw = 200;
+let gh = 200;
+let tm = 0;
+let drag = null;
+const cc = $("cc");
+const cctx = cc.getContext("2d");
+const CP = /* @__PURE__ */ new Map();
+let cpin = 0;
+const maxW = () => Math.min(CI.width, CI.height * fa);
+const rh = () => R.w / fa;
+const region = () => ({ sx: R.x, sy: R.y, sw: R.w, sh: rh() });
+function st(t, err) {
+  const e = $("fn");
+  e.textContent = t;
+  e.style.color = err ? "#ff8a8a" : "var(--mut)";
+}
+function clampR() {
+  const m = maxW();
+  R.w = Math.max(m / 12, Math.min(m, R.w));
+  R.x = Math.max(0, Math.min(CI.width - R.w, R.x));
+  R.y = Math.max(0, Math.min(CI.height - rh(), R.y));
+  $("zm").value = m / R.w;
+}
+function cropLayout(reset) {
+  if (!CI) return;
+  fa = asp === "orig" ? CI.width / CI.height : asp;
+  const cw = $("cbox").clientWidth || 320, mh = Math.max(240, innerHeight * 0.45);
+  ds = Math.min(cw / CI.width, mh / CI.height);
+  Dw = Math.round(CI.width * ds);
+  Dh = Math.round(CI.height * ds);
+  dpr = window.devicePixelRatio || 1;
+  cc.style.width = Dw + "px";
+  cc.style.height = Dh + "px";
+  cc.width = Math.round(Dw * dpr);
+  cc.height = Math.round(Dh * dpr);
+  if (reset) {
+    R.w = maxW();
+    R.x = (CI.width - R.w) / 2;
+    R.y = (CI.height - rh()) / 2;
+  }
+  clampR();
+  cropDraw();
+}
+function cropDraw() {
+  if (!CI) return;
+  const x = cctx;
+  x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.drawImage(CI, 0, 0, Dw, Dh);
+  const rx = R.x * ds, ry = R.y * ds, rw = R.w * ds, h = rh() * ds;
+  x.fillStyle = "rgba(14,10,30,.66)";
+  x.fillRect(0, 0, Dw, ry);
+  x.fillRect(0, ry + h, Dw, Dh - ry - h);
+  x.fillRect(0, ry, rx, h);
+  x.fillRect(rx + rw, ry, Dw - rx - rw, h);
+  x.strokeStyle = "rgba(255,255,255,.35)";
+  x.lineWidth = 1;
+  x.beginPath();
+  for (let i = 1; i < 3; i++) {
+    x.moveTo(rx + rw * i / 3, ry);
+    x.lineTo(rx + rw * i / 3, ry + h);
+    x.moveTo(rx, ry + h * i / 3);
+    x.lineTo(rx + rw, ry + h * i / 3);
+  }
+  x.stroke();
+  x.strokeStyle = "#ffc857";
+  x.lineWidth = 2.5;
+  x.strokeRect(rx, ry, rw, h);
+  x.fillStyle = "#ffc857";
+  for (const [px, py] of [[rx, ry], [rx + rw, ry], [rx, ry + h], [rx + rw, ry + h]]) x.fillRect(px - 8, py - 8, 16, 16);
+}
+function setZoom(z) {
+  if (!CI) return;
+  const cx = R.x + R.w / 2, cy = R.y + rh() / 2;
+  R.w = maxW() / Math.max(1, Math.min(12, z));
+  R.x = cx - R.w / 2;
+  R.y = cy - rh() / 2;
+  clampR();
+  cropDraw();
+  preview();
+}
+function setDims(k, v) {
+  v = Math.max(10, Math.min(500, Math.round(+v) || 10));
+  if (k === "w") {
+    gw = v;
+    gh = Math.round(v / fa);
+  } else if (k === "h") {
+    gh = v;
+    gw = Math.round(v * fa);
+  } else if (fa >= 1) {
+    gw = v;
+    gh = Math.round(v / fa);
+  } else {
+    gh = v;
+    gw = Math.round(v * fa);
+  }
+  gw = Math.max(1, Math.min(500, gw));
+  gh = Math.max(1, Math.min(500, gh));
+  $("fw").value = gw;
+  $("fh").value = gh;
+  $("sl").value = Math.max(gw, gh);
+  $("dim").textContent = `${gw} × ${gh}`;
+  $("cnt").textContent = (gw * gh).toLocaleString("de-DE") + " Pixel";
+  preview();
+}
+function preview() {
+  if (!CI) return;
+  clearTimeout(tm);
+  $("pv").style.opacity = 0.35;
+  $("pst").textContent = "Berechne Vorschau …";
+  tm = setTimeout(() => {
+    try {
+      const q = quant(CI, region(), gw, gh, +$("nc").value);
+      prep(q);
+      $("pv").hidden = false;
+      mini($("pv"), q, Math.max(1, Math.floor(600 / Math.max(gw, gh))), true);
+      $("pst").textContent = "VORSCHAU · so sieht das Malbild ungefähr aus";
+      $("pv").style.opacity = 1;
+    } catch (err) {
+      $("pst").textContent = "Vorschau-Fehler: " + err.message;
+    }
+  }, 250);
+}
+$("new").onclick = () => {
+  view("nw");
+  cropLayout(false);
+};
+$("nback").onclick = gallery;
+const loadImg = (src) => new Promise((res, rej) => {
+  const im = new Image();
+  im.onload = () => res(im);
+  im.onerror = () => rej(new Error("img"));
+  im.src = src;
+});
+async function decode(f) {
+  try {
+    return await createImageBitmap(f);
+  } catch (e) {
+  }
+  try {
+    const u = URL.createObjectURL(f);
+    try {
+      return await loadImg(u);
+    } finally {
+      URL.revokeObjectURL(u);
+    }
+  } catch (e) {
+  }
+  try {
+    const d = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(r.error);
+      r.readAsDataURL(f);
+    });
+    return await loadImg(d);
+  } catch (e) {
+  }
+  throw new Error(`Die Datei lässt sich nicht lesen (Typ: ${f.type || "unbekannt"}, ${(f.size / 1e6).toFixed(2)} MB). Möglich: beschädigt, HEIC/HEIF oder noch nicht ganz heruntergeladen (Cloud). Öffne sie testweise im Browser oder speichere sie als JPG/PNG neu.`);
+}
+async function handleFile(f) {
+  fname = (f.name || "Bild").replace(/\.[^.]+$/, "") || "Bild";
+  st("Lade Bild …");
+  try {
+    const im = await decode(f), W = im.naturalWidth || im.width, H = im.naturalHeight || im.height;
+    if (!W || !H) throw new Error("Das Bild hat keine Größe (leer oder beschädigt).");
+    const k = Math.min(1, 3e3 / Math.max(W, H)), c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(W * k));
+    c.height = Math.max(1, Math.round(H * k));
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    if (im.close) im.close();
+    CI = c;
+    cropLayout(true);
+    setDims("l", Math.max(gw, gh));
+    st(`${f.name || fname} · ${W}×${H}`);
+  } catch (err) {
+    st(err.message, 1);
+  }
+}
+$("file").onchange = (e) => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (f) handleFile(f);
+};
+$("asp").onclick = (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  asp = b.dataset.a === "orig" ? "orig" : parseFloat(b.dataset.a);
+  document.querySelectorAll("#asp button").forEach((x) => x.classList.toggle("on", x === b));
+  if (!CI) {
+    toast("Wähle zuerst ein Bild");
+    return;
+  }
+  cropLayout(true);
+  setDims("l", Math.max(gw, gh));
+};
+$("zm").oninput = () => setZoom(+$("zm").value);
+$("sl").oninput = () => setDims("l", $("sl").value);
+$("fw").onchange = () => setDims("w", $("fw").value);
+$("fh").onchange = () => setDims("h", $("fh").value);
+$("nc").oninput = () => {
+  $("ncv").textContent = $("nc").value;
+  preview();
+};
+$("use").onclick = () => {
+  if (!CI) {
+    toast("Wähle zuerst ein Bild");
+    return;
+  }
+  const b = $("use");
+  b.textContent = "Rechne …";
+  setTimeout(() => {
+    try {
+      const q = quant(CI, region(), gw, gh, +$("nc").value);
+      q.id = Date.now();
+      q.name = fname;
+      q.done = new Uint8Array(q.idx.length);
+      S = q;
+      save();
+      openPic(S);
+    } catch (err) {
+      toast("Fehler: " + err.message);
+    }
+    b.textContent = "Nutzen ✓";
+  }, 30);
+};
+cc.addEventListener("pointerdown", (e) => {
+  if (!CI) return;
+  cc.setPointerCapture(e.pointerId);
+  CP.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
+  cpin = 0;
+  if (CP.size > 1) {
+    drag = null;
+    return;
+  }
+  const x = e.offsetX, y = e.offsetY, rx = R.x * ds, ry = R.y * ds, rw = R.w * ds, h = rh() * ds, cs = [[rx, ry], [rx + rw, ry], [rx, ry + h], [rx + rw, ry + h]];
+  const hit = cs.findIndex((c) => Math.hypot(c[0] - x, c[1] - y) < 28);
+  if (hit >= 0) {
+    const o = 3 - hit;
+    drag = { t: "rs", ax: o % 2 ? R.x + R.w : R.x, ay: o >= 2 ? R.y + rh() : R.y };
+  } else {
+    if (x < rx || x > rx + rw || y < ry || y > ry + h) {
+      R.x = x / ds - R.w / 2;
+      R.y = y / ds - rh() / 2;
+      clampR();
+    }
+    drag = { t: "mv", lx: x, ly: y };
+  }
+  cropDraw();
+});
+cc.addEventListener("pointermove", (e) => {
+  const p = CP.get(e.pointerId);
+  if (!p || !CI) return;
+  const x = e.offsetX, y = e.offsetY;
+  p.x = x;
+  p.y = y;
+  if (CP.size === 2) {
+    const [u, v] = [...CP.values()], d = Math.hypot(u.x - v.x, u.y - v.y);
+    if (cpin) {
+      const cx = R.x + R.w / 2, cy = R.y + rh() / 2;
+      R.w *= cpin / d;
+      R.x = cx - R.w / 2;
+      R.y = cy - rh() / 2;
+      clampR();
+      cropDraw();
+      preview();
+    }
+    cpin = d;
+    return;
+  }
+  if (!drag) return;
+  if (drag.t === "mv") {
+    R.x += (x - drag.lx) / ds;
+    R.y += (y - drag.ly) / ds;
+    drag.lx = x;
+    drag.ly = y;
+    clampR();
+  } else {
+    const px = x / ds, py = y / ds, dx = px >= drag.ax ? 1 : -1, dy = py >= drag.ay ? 1 : -1, aw = dx > 0 ? CI.width - drag.ax : drag.ax, ah = dy > 0 ? CI.height - drag.ay : drag.ay;
+    let w = Math.max(Math.abs(px - drag.ax), Math.abs(py - drag.ay) * fa);
+    w = Math.max(maxW() / 12, Math.min(w, aw, ah * fa));
+    R.w = w;
+    R.x = dx > 0 ? drag.ax : drag.ax - w;
+    R.y = dy > 0 ? drag.ay : drag.ay - w / fa;
+    clampR();
+  }
+  cropDraw();
+  preview();
+});
+const cup = (e) => {
+  CP.delete(e.pointerId);
+  cpin = 0;
+  drag = null;
+};
+cc.addEventListener("pointerup", cup);
+cc.addEventListener("pointercancel", cup);
+cc.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  if (CI) setZoom(maxW() / R.w * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+}, { passive: false });
+
+// ======================================================================
+// 6. MALBILDSCHIRM
+// Palette, Zeichnen des Bildes (Render), Malen, Strafmodus-Logik.
+// ======================================================================
+function buildPal() {
+  const P2 = $("pal");
+  P2.innerHTML = "";
+  sw = S.pal.map((p, i) => {
+    const e = document.createElement("div");
+    e.className = "sw";
+    e.style.background = `rgb(${p})`;
+    e.style.color = lum(p) > 140 ? "#000" : "#fff";
+    e.onclick = () => choose(i);
+    P2.appendChild(e);
+    return e;
+  });
+  sw.forEach((_, i) => swUpd(i));
+}
+const swQ = /* @__PURE__ */ new Set();
+let swRaf = 0;
+function swLater(i) {
+  swQ.add(i);
+  if (!swRaf) swRaf = requestAnimationFrame(() => {
+    swRaf = 0;
+    swQ.forEach(swUpd);
+    swQ.clear();
+  });
+}
+function swUpd(i) {
+  const e = sw[i];
+  e.innerHTML = S.left[i] ? `${i + 1}<small>${S.left[i]}</small>` : `${i + 1}<small>✓</small>`;
+  e.classList.toggle("done", !S.left[i]);
+  e.classList.toggle("sel", i === sel);
+}
+function choose(i) {
+  const o = sel;
+  sel = i;
+  lastJump = -1;
+  if (S.u32) refreshOC();
+  if (sw[o]) swUpd(o);
+  swUpd(i);
+  sw[i].scrollIntoView({ inline: "center", block: "nearest" });
+  draw();
+}
+function pickNext(f) {
+  for (let k = 0; k < S.pal.length; k++) {
+    const i = (f + k) % S.pal.length;
+    if (S.left[i]) {
+      choose(i);
+      return;
+    }
+  }
+  choose(0);
+}
+function pct() {
+  const t = S.idx.length, l = S.left.reduce((a, b) => a + b, 0);
+  $("pct").textContent = Math.floor((t - l) / t * 100) + " %" + (penalty && S.mis ? ` · ✗ ${S.mis}` : "");
+  return l;
+}
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  cv.width = cv.clientWidth * dpr;
+  cv.height = cv.clientHeight * dpr;
+  draw();
+}
+function fit() {
+  if (!S) return;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  scale = Math.min(W / S.w, H / S.h) * 0.98;
+  minS = scale * 0.7;
+  ox = (W - S.w * scale) / 2;
+  oy = (H - S.h * scale) / 2;
+  draw();
+}
+function draw() {
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(render);
+}
+function render() {
+  const W = cv.clientWidth, H = cv.clientHeight;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = "#0e0b1c";
+  ctx.fillRect(0, 0, W, H);
+  if (!S || $("ed").hidden) return;
+  const x0 = Math.max(0, Math.floor(-ox / scale)), y0 = Math.max(0, Math.floor(-oy / scale)), x1 = Math.min(S.w, Math.ceil((W - ox) / scale)), y1 = Math.min(S.h, Math.ceil((H - oy) / scale));
+  const detail = !fast, num = detail && scale >= 15, edge = detail && scale >= 3 && (x1 - x0) * (y1 - y0) <= 4e4;
+  if (S.dirty) {
+    const d = S.dirty;
+    S.octx.putImageData(S.img, 0, 0, d.x0, d.y0, d.x1 - d.x0 + 1, d.y1 - d.y0 + 1);
+    S.dirty = null;
+  }
+  ctx.imageSmoothingEnabled = scale < 1.5;
+  ctx.drawImage(S.oc, ox, oy, S.w * scale, S.h * scale);
+  if (edge) {
+    ctx.fillStyle = "rgba(30,30,50,.5)";
+    const t = scale >= 10 ? 1.5 : 1;
+    ctx.beginPath();
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const i = y * S.w + x, c = S.idx[i];
+      if (x + 1 < S.w && S.idx[i + 1] !== c && (!S.done[i] || !S.done[i + 1])) ctx.rect(ox + (x + 1) * scale - t / 2, oy + y * scale, t, scale);
+      if (y + 1 < S.h && S.idx[i + S.w] !== c && (!S.done[i] || !S.done[i + S.w])) ctx.rect(ox + x * scale, oy + (y + 1) * scale - t / 2, scale, t);
+    }
+    ctx.fill();
+  }
+  if (detail && scale >= 10) {
+    ctx.strokeStyle = "rgba(0,0,0,.07)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = x0; x <= x1; x++) {
+      ctx.moveTo(ox + x * scale, oy + y0 * scale);
+      ctx.lineTo(ox + x * scale, oy + y1 * scale);
+    }
+    for (let y = y0; y <= y1; y++) {
+      ctx.moveTo(ox + x0 * scale, oy + y * scale);
+      ctx.lineTo(ox + x1 * scale, oy + y * scale);
+    }
+    ctx.stroke();
+  }
+  if (num) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `600 ${Math.round(scale * 0.42)}px system-ui`;
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const i = y * S.w + x;
+      if (S.done[i]) continue;
+      const c = S.idx[i];
+      ctx.fillStyle = c === sel ? "#fff" : "#4a4660";
+      ctx.fillText(c + 1, ox + x * scale + scale / 2, oy + y * scale + scale / 2);
+    }
+  }
+  if (ping) {
+    const t = performance.now() - ping.t;
+    if (t < 2500) {
+      ctx.strokeStyle = "#ffc857";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(ox + ping.x * scale, oy + ping.y * scale, scale * (0.8 + 0.3 * Math.sin(t / 110)), 0, 7);
+      ctx.stroke();
+      draw();
+    } else ping = null;
+  }
+}
+function fastOn() {
+  fast = true;
+  clearTimeout(fastT);
+  fastT = setTimeout(() => {
+    fast = false;
+    draw();
+  }, 140);
+}
+function zoomAt(cx, cy, f) {
+  const ns = Math.max(minS, Math.min(80, scale * f));
+  f = ns / scale;
+  ox = cx - (cx - ox) * f;
+  oy = cy - (cy - oy) * f;
+  scale = ns;
+}
+function done() {
+  if (!pct()) toast("Bild fertig! 🎉");
+}
+function paintAt(sx, sy) {
+  const x = Math.floor((sx - ox) / scale), y = Math.floor((sy - oy) / scale);
+  if (x < 0 || y < 0 || x >= S.w || y >= S.h) return;
+  const i = y * S.w + x;
+  if (S.done[i]) return;
+  if (S.idx[i] !== sel) {
+    if (penalty && !stroke.has(i)) {
+      stroke.add(i);
+      if (S.smudge[i] < 3) S.smudge[i]++;
+      S.mis++;
+      S.u32[i] = cellCol(i);
+      markDirty(i);
+      dirty = true;
+    }
+    return;
+  }
+  S.done[i] = 1;
+  S.left[sel]--;
+  dirty = true;
+  S.u32[i] = S.rgb32[sel];
+  markDirty(i);
+  if (!S.left[sel]) {
+    swUpd(sel);
+    pickNext(sel + 1);
+  } else swLater(sel);
+}
+function paintLine(a, b, c, d) {
+  const st2 = Math.max(1, Math.ceil(Math.hypot(c - a, d - b) / Math.max(1, scale / 2)));
+  for (let s = 1; s <= st2; s++) paintAt(a + (c - a) * s / st2, b + (d - b) * s / st2);
+  draw();
+  done();
+}
+
+// ======================================================================
+// 7. EINGABE
+// Zeiger-Ereignisse: Finger (verschieben/zoomen), Stift (malen; Knopf = verschieben), Maus.
+// ======================================================================
+const P = /* @__PURE__ */ new Map();
+let pin = null;
+const role = (e) => e.pointerType === "touch" ? mode === 1 ? "paint" : "pan" : mode === 2 || penBtn || e.buttons & 38 ? "pan" : "paint";
+const touches = () => [...P.values()].filter((p) => p.t === "touch");
+cv.addEventListener("pointerdown", (e) => {
+  if (!S) return;
+  try {
+    cv.setPointerCapture(e.pointerId);
+  } catch (x) {
+  }
+  stroke.clear();
+  P.set(e.pointerId, { x: e.offsetX, y: e.offsetY, t: e.pointerType });
+  if (touches().length === 2) {
+    pin = null;
+    return;
+  }
+  if (role(e) === "paint") {
+    paintAt(e.offsetX, e.offsetY);
+    draw();
+    done();
+  }
+});
+cv.addEventListener("pointermove", (e) => {
+  const p = P.get(e.pointerId);
+  if (!p || !S) return;
+  const a = p.x, b = p.y;
+  p.x = e.offsetX;
+  p.y = e.offsetY;
+  const ts = touches();
+  if (ts.length === 2 && p.t === "touch") {
+    const d = Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y), cx = (ts[0].x + ts[1].x) / 2, cy = (ts[0].y + ts[1].y) / 2;
+    if (pin) {
+      zoomAt(cx, cy, d / pin.d);
+      ox += cx - pin.cx;
+      oy += cy - pin.cy;
+    }
+    pin = { d, cx, cy };
+    fastOn();
+    draw();
+    return;
+  }
+  pin = null;
+  if (role(e) === "pan") {
+    ox += p.x - a;
+    oy += p.y - b;
+    fastOn();
+    draw();
+  } else paintLine(a, b, p.x, p.y);
+});
+const up = (e) => {
+  P.delete(e.pointerId);
+  pin = null;
+  stroke.clear();
+  pct();
+  if (dirty) {
+    dirty = false;
+    save();
+  }
+};
+cv.addEventListener("pointerup", up);
+cv.addEventListener("pointercancel", up);
+cv.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  zoomAt(e.offsetX, e.offsetY, e.deltaY < 0 ? 1.2 : 1 / 1.2);
+  fastOn();
+  draw();
+}, { passive: false });
+
+// ======================================================================
+// 8. WERKZEUGE & SCHALTER
+// Werkzeugleiste, Zoomtasten, Strafmodus, Suchknopf, Stift-Test (Diagnose).
+// ======================================================================
+$("tools").onclick = (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  mode = +b.dataset.m;
+  document.querySelectorAll("#tools button").forEach((x) => x.classList.toggle("on", x === b));
+};
+$("zi").onclick = () => {
+  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4);
+  fastOn();
+  draw();
+};
+$("zo").onclick = () => {
+  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4);
+  fastOn();
+  draw();
+};
+$("fit").onclick = fit;
+function penLabel() {
+  $("pen").textContent = "Strafe: " + (penalty ? "an" : "aus");
+  $("pen").classList.toggle("on", penalty);
+}
+$("pen").onclick = () => {
+  penalty = !penalty;
+  try {
+    localStorage.setItem("mnz-pen", penalty ? "1" : "0");
+  } catch (e) {
+  }
+  penLabel();
+  if (S) pct();
+  toast(penalty ? "Strafmodus an: falsche Felder werden grau" : "Strafmodus aus");
+};
+penLabel();
+$("find").onclick = () => {
+  if (!S) return;
+  if (!S.left[sel]) {
+    toast("Diese Farbe ist fertig ✓");
+    return;
+  }
+  const W = cv.clientWidth, H = cv.clientHeight, cx = (W / 2 - ox) / scale, cy = (H / 2 - oy) / scale;
+  let best = -1, bd = 1e18;
+  for (let i = 0; i < S.idx.length; i++) {
+    if (S.idx[i] !== sel || S.done[i] || i === lastJump) continue;
+    const x2 = i % S.w + 0.5, y2 = (i / S.w | 0) + 0.5, d = (x2 - cx) ** 2 + (y2 - cy) ** 2;
+    if (d < bd) {
+      bd = d;
+      best = i;
+    }
+  }
+  if (best < 0) best = lastJump;
+  lastJump = best;
+  const x = best % S.w + 0.5, y = (best / S.w | 0) + 0.5;
+  scale = Math.min(80, Math.max(scale, 22));
+  ox = W / 2 - x * scale;
+  oy = H / 2 - y * scale;
+  ping = { x, y, t: performance.now() };
+  toast(`Noch ${S.left[sel]} offen bei Nr. ${sel + 1}`);
+  draw();
+};
+cv.addEventListener("contextmenu", (e) => e.preventDefault());
+["pointerdown", "pointermove", "pointerup", "pointerover"].forEach((t) => cv.addEventListener(t, (e) => {
+  if (e.pointerType === "pen") penBtn = !!(e.buttons & 38) || t === "pointerdown" && (e.button === 2 || e.button === 5);
+}, true));
+const dbgEl = $("dbgp");
+let dbgOn = false;
+let dbgLines = [];
+function dbgLog(e) {
+  if (!dbgOn) return;
+  const sig = `${e.type} ${e.pointerType || ""} btn=${e.button} bs=${e.buttons} id=${e.pointerId}` + (e.pointerType && e.pointerType !== "touch" ? ` rolle=${role(e)}` : "");
+  const last = dbgLines[dbgLines.length - 1];
+  if (last && last.sig === sig) last.n++;
+  else {
+    dbgLines.push({ sig, n: 1 });
+    if (dbgLines.length > 9) dbgLines.shift();
+  }
+  dbgEl.textContent = dbgLines.map((l) => l.sig + (l.n > 1 ? " ×" + l.n : "")).join("\n");
+}
+["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerover", "pointerout", "contextmenu", "mousedown"].forEach((t) => cv.addEventListener(t, dbgLog, true));
+$("dbg").onclick = () => {
+  dbgOn = !dbgOn;
+  dbgEl.hidden = !dbgOn;
+  $("dbg").classList.toggle("on", dbgOn);
+  dbgLines = [];
+  dbgEl.textContent = "Stift-Test: Stift-Knopf drücken und über das Bild ziehen …";
+};
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) save();
+});
+window.addEventListener("resize", () => {
+  if (!$("ed").hidden) {
+    resize();
+    fit();
+  }
+  if (!$("nw").hidden) cropLayout(false);
+});
+
+// ======================================================================
+// 9. APP-INSTALLATION (PWA)
+// Manifest, Service Worker, Teilen aus der Galerie.
+// ======================================================================
+if (location.protocol.startsWith("http")) {
+  const l = document.createElement("link");
+  l.rel = "manifest";
+  l.href = "manifest.webmanifest";
+  document.head.appendChild(l);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {
+  });
+}
+async function takeShared() {
+  if (!/[?&]shared=1/.test(location.search) || !window.caches) return;
+  try {
+    const c = await caches.open("zm-share"), r = await c.match("shared");
+    if (!r) return;
+    const b = await r.blob();
+    await c.delete("shared");
+    history.replaceState(null, "", location.pathname);
+    $("new").click();
+    handleFile(new File([b], decodeURIComponent(r.headers.get("X-Name") || "Bild"), { type: b.type }));
+  } catch (e) {
+  }
+}
+
+// ======================================================================
+// 10. START
+// Galerie anzeigen und ggf. geteiltes Bild übernehmen.
+// ======================================================================
 gallery().then(takeShared);
-</script></body></html>
+</script>
+</body></html>
