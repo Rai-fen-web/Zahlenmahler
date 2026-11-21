@@ -4,7 +4,10 @@
 <meta name="theme-color" content="#16122a">
 <title>Zahlenmaler</title>
 <style>
-/* ---------- Farben & Grundlayout ---------- */
+/* ======================================================================
+   1. FARBEN & GRUNDLAYOUT
+   Farbvariablen (:root), Grundeinstellungen, Standard-Knöpfe. Farben ändern: hier in :root.
+   ====================================================================== */
 :root {
   --bg: #16122a;
   --pn: #221c3d;
@@ -68,7 +71,10 @@ button.on {
   color: #fff;
 }
 
-/* ---------- Gemeinsame Bausteine (Ansichten, Kopfzeile) ---------- */
+/* ======================================================================
+   2. GEMEINSAME BAUSTEINE
+   Ansichten (.view), Kopfzeile, Farbstreifen, Überschriften, Meldung (#toast).
+   ====================================================================== */
 .view {
   display: flex;
   flex-direction: column;
@@ -103,6 +109,12 @@ header h1 {
   align-items: center;
   gap: 10px;
 }
+header h1 small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--mut);
+  align-self: flex-end;
+}
 h2 {
   font-size: 13px;
   margin: 18px 0 8px;
@@ -110,14 +122,28 @@ h2 {
   font-weight: 600;
   letter-spacing: .4px;
 }
-
-/* ---------- Galerie ---------- */
-header h1 small {
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--mut);
-  align-self: flex-end;
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(
+      135deg,
+      var(--acc),
+      #ff9d5c);
+  color: #2a1700;
+  font-weight: 700;
+  padding: 11px 22px;
+  border-radius: 30px;
+  z-index: 9;
+  box-shadow: 0 6px 20px #0008;
 }
+
+/* ======================================================================
+   3. GALERIE
+   Karten mit Vorschau, Fortschrittsbalken und den Knöpfen ⬇ ✎ ↗ ✕.
+   ====================================================================== */
 #grid {
   flex: 1;
   overflow: auto;
@@ -140,7 +166,8 @@ header h1 small {
   padding: 12px;
   background: var(--pn2);
 }
-.mat canvas {
+.mat canvas,
+.mat img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
@@ -178,6 +205,22 @@ header h1 small {
 .card small {
   color: var(--mut);
 }
+.card .dl,
+.card .ren,
+.card .sh {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  background: #000a;
+  border-radius: 20px;
+}
+.card .ren {
+  left: 52px;
+}
+.card .sh {
+  left: 96px;
+}
 .card .x {
   position: absolute;
   top: 8px;
@@ -193,103 +236,10 @@ header h1 small {
   padding: 70px 20px;
 }
 
-/* ---------- Malbildschirm ---------- */
-#stage {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-}
-#cv {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-}
-.float {
-  position: absolute;
-  display: flex;
-  gap: 6px;
-  padding: 6px;
-  background: #221c3dd9;
-  border: 1px solid var(--ln);
-  border-radius: 18px;
-  backdrop-filter: blur(8px);
-  z-index: 2;
-}
-#dbgp {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  margin: 0;
-  padding: 8px 10px;
-  background: #000c;
-  border-radius: 10px;
-  font: 12px/1.4 monospace;
-  color: #9ff;
-  z-index: 3;
-  pointer-events: none;
-  max-width: 75%;
-  white-space: pre-wrap;
-}
-#tools {
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-#zoomb {
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  flex-direction: column;
-}
-#pal {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 9px;
-  background: #221c3df2;
-}
-.sw {
-  flex: none;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  border: 3px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  line-height: 1.1;
-  box-shadow: inset 0 0 0 1px #0004;
-}
-.sw small {
-  font-size: 10px;
-  font-weight: 400;
-}
-.sw.sel {
-  border-color: #fff;
-  box-shadow: 0 0 0 3px var(--acc2);
-}
-.sw.done {
-  opacity: .3;
-}
-#ttl {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 700;
-}
-#pct {
-  color: var(--acc);
-  font-weight: 700;
-  min-width: 50px;
-  text-align: right;
-}
-
-/* ---------- Neues Bild ---------- */
+/* ======================================================================
+   4. NEUES BILD
+   Zwei Spalten ab 820 px Breite: Ausschnitt/Zoom links, Größe/Vorschau rechts.
+   ====================================================================== */
 #nwb {
   flex: 1;
   overflow: auto;
@@ -380,26 +330,246 @@ input[type=number] {
   color: var(--acc);
 }
 
-/* ---------- Meldungen ---------- */
-#toast {
-  position: fixed;
-  left: 50%;
-  bottom: 100px;
-  transform: translateX(-50%);
-  background:
-    linear-gradient(
-      135deg,
-      var(--acc),
-      #ff9d5c);
-  color: #2a1700;
+/* ======================================================================
+   5. MALBILDSCHIRM
+   Zeichenfläche, schwebende Zoom-Leiste, Stift-Test-Anzeige, Palette unten, Titel/Fortschritt.
+   ====================================================================== */
+#stage {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+#cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.float {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: #221c3dd9;
+  border: 1px solid var(--ln);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+#dbgp {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  margin: 0;
+  padding: 8px 10px;
+  background: #000c;
+  border-radius: 10px;
+  font: 12px/1.4 monospace;
+  color: #9ff;
+  z-index: 3;
+  pointer-events: none;
+  max-width: 75%;
+  white-space: pre-wrap;
+}
+#zoomb {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+#pal {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 9px;
+  background: #221c3df2;
+}
+.sw {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   font-weight: 700;
-  padding: 11px 22px;
-  border-radius: 30px;
-  z-index: 9;
-  box-shadow: 0 6px 20px #0008;
+  line-height: 1.1;
+  box-shadow: inset 0 0 0 1px #0004;
+}
+.sw small {
+  font-size: 10px;
+  font-weight: 400;
+}
+.sw.sel {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--acc2);
+}
+.sw.done {
+  opacity: .3;
+}
+#ed {
+  position: relative;
+}
+#ttl {
+  cursor: pointer;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+}
+#ttl::after {
+  content: " ✎";
+  color: var(--mut);
+  font-weight: 400;
+}
+#pct {
+  color: var(--acc);
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ======================================================================
+   6. OPTIONEN-MENÜ & UMBENENNEN-FENSTER
+   Ausklappmenü (.menu/.opt) und Eingabefenster (#modal).
+   ====================================================================== */
+.menu {
+  position: absolute;
+  top: 66px;
+  right: 10px;
+  z-index: 20;
+  width: min(380px, 92vw);
+  max-height: calc(100% - 150px);
+  overflow: auto;
+  background: var(--pn);
+  border: 1px solid var(--ln);
+  border-radius: 18px;
+  padding: 8px;
+  box-shadow: 0 12px 30px #000a;
+}
+.mtitle {
+  font-size: 12px;
+  color: var(--mut);
+  letter-spacing: .4px;
+  padding: 10px 10px 4px;
+}
+.opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  margin: 3px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-align: left;
+  background: var(--pn2);
+}
+.opt small {
+  color: var(--mut);
+  font-size: 12px;
+  font-weight: 400;
+}
+.opt.on {
+  background: var(--pn2);
+  color: var(--tx);
+  outline: 2px solid var(--acc);
+}
+.opt.toggle {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.opt.toggle b {
+  flex: 1;
+}
+.opt.toggle small {
+  width: 100%;
+}
+.pill {
+  padding: 2px 12px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--mut);
+  font-weight: 700;
+}
+.opt.on .pill {
+  background: var(--acc);
+  color: #2a1700;
+}
+#modal,
+#bkModal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000b;
+}
+.mbox {
+  width: min(92vw, 420px);
+  padding: 18px;
+  background: var(--pn);
+  border: 1px solid var(--ln);
+  border-radius: 18px;
+}
+.mbox h3 {
+  margin: 0 0 12px;
+}
+#nameIn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ln);
+  background: var(--pn2);
+  color: var(--tx);
+  font: inherit;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.mrow {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+#menuBtn.warn,
+#bkOpen.warn {
+  background: #d9534f;
+  color: #fff;
+}
+.bkinfo {
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--mut);
+}
+.bkinfo p {
+  margin: 0 0 8px;
+}
+.opt.tol b {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.opt.tol input {
+  width: 100%;
+  min-width: 0;
 }
 </style></head>
 <body>
+<!--
+  ZAHLENMALER – Dateiaufbau (alles in einer Datei, kein Build nötig):
+    1. <style>   CSS in 6 Abschnitten (Farben, Bausteine, Galerie, Neues Bild, Malen, Menü)
+    2. <body>    HTML: drei Ansichten (#gal Galerie, #nw Neues Bild, #ed Malbildschirm), Meldung, Umbenennen-Fenster
+    3. <script>  JavaScript in 15 Abschnitten – Inhaltsverzeichnis und Fehlersuche-Tabelle stehen am Anfang des Skripts
+  Das App-Paket enthält zusätzlich sw.js, manifest.webmanifest und die Icons.
+-->
 <!-- ================= GALERIE ================= -->
 <div id="gal" class="view">
   <header>
@@ -415,6 +585,7 @@ input[type=number] {
         <path fill="#ff9d5c" d="M1 2h1v1H1z"/>
         <path fill="#54a0ff" d="M2 2h1v1H2z"/>
       </svg>Zahlenmaler<small id="ver"></small></h1>
+    <button id="bkOpen" title="Speicher &amp; Sicherung">💾 Sicherung</button>
     <button id="new" class="pri">＋ Neues Bild</button>
   </header>
   <div class="strip"></div>
@@ -473,128 +644,700 @@ input[type=number] {
 <div id="ed" class="view" hidden>
   <header>
     <button id="back">‹ Galerie</button>
-    <span id="ttl"></span>
+    <span id="ttl" title="Tippen zum Umbenennen"></span>
     <span id="pct"></span>
-    <button id="pen" title="Falsch angemalte Felder werden grau">Strafe: aus</button>
-    <button id="fit">⤢ Einpassen</button>
+    <button id="menuBtn" title="Optionen">⚙ Optionen</button>
   </header>
   <div class="strip"></div>
   <div id="stage">
     <canvas id="cv"></canvas>
     <pre id="dbgp" hidden></pre>
-    <div class="float" id="tools">
-      <button data-m="0" class="on" title="S-Pen-Knopf gedrückt halten = Bild verschieben">✏️ Stift malt · Knopf = bewegen</button>
-      <button data-m="1">👆 Finger malt</button>
-      <button data-m="2">✋ Nur bewegen</button>
-    </div>
     <div class="float" id="zoomb">
-      <button id="dbg" title="Stift-Test anzeigen">🔧</button>
       <button id="find" title="Zum nächsten offenen Feld dieser Farbe springen">🎯</button>
-      <button id="zi">＋</button>
-      <button id="zo">－</button>
+      <button id="zi" title="Hineinzoomen">＋</button>
+      <button id="zo" title="Herauszoomen">－</button>
+      <button id="fit" title="Ganzes Bild anzeigen (Zoom zurücksetzen)">⤢</button>
     </div>
   </div>
   <div id="pal"></div>
+  <!-- Optionen-Menü -->
+  <div id="menu" class="menu" hidden>
+    <div class="mtitle">ZEICHNEN</div>
+    <button class="opt on" data-m="0"><b>✏️ Stift automatisch</b><small>Der Stift malt auf offenen Feldern der gewählten Farbe, sonst verschiebt er das Bild. Der Finger verschiebt.</small></button>
+    <button class="opt" data-m="1"><b>👆 Finger malt auch</b><small>Auch der Finger malt. Verschieben und Zoomen mit zwei Fingern.</small></button>
+    <button class="opt" data-m="2"><b>✋ Nur bewegen</b><small>Es wird nichts gemalt, nur verschoben und gezoomt.</small></button>
+    <div class="opt tol">
+      <b>Toleranz beim Aufsetzen <span class="pill" id="tolVal">8 px</span></b>
+      <small>Setzt du den Stift neben ein offenes Feld auf: Größer = er malt eher, kleiner = er verschiebt eher.</small>
+      <input id="tol" type="range" min="0" max="30" step="1" value="8">
+    </div>
+    <div class="mtitle">SPIELREGELN</div>
+    <button class="opt toggle" id="pen"><b>Strafmodus</b><span class="pill" id="penState">aus</span><small>Falsch überfahrene Felder werden grau. Oben steht ein Fehlerzähler.</small></button>
+    <div class="mtitle">BILD</div>
+    <button class="opt" id="ren"><b>✎ Bild umbenennen</b></button>
+    <button class="opt" id="exp"><b>💾 Als Bild speichern</b><small>PNG-Datei im Ordner Downloads, erscheint in der Galerie.</small></button>
+    <button class="opt" id="shr" hidden><b>↗ Teilen</b></button>
+    <div class="mtitle">SPEICHER</div>
+    <button class="opt" id="bkMenu"><b>🗄 Speicher &amp; Sicherung</b><small>Sicherungsdatei erstellen oder wiederherstellen, Speicherstatus prüfen.</small></button>
+    <div class="mtitle">TECHNIK</div>
+    <button class="opt" id="dbg"><b>🔧 Stift-Test anzeigen</b></button>
+  </div>
 </div>
 
 <div id="toast" hidden></div>
 
+<!-- Umbenennen -->
+<div id="modal" hidden>
+  <div class="mbox">
+    <h3>Bild umbenennen</h3>
+    <input id="nameIn" type="text" maxlength="60" autocomplete="off">
+    <div class="mrow">
+      <button id="nameCancel">Abbrechen</button>
+      <button id="nameOk" class="pri">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Speicher & Sicherung -->
+<div id="bkModal" hidden>
+  <div class="mbox">
+    <h3>Speicher &amp; Sicherung</h3>
+    <div id="bkInfo" class="bkinfo">…</div>
+    <button class="opt" id="bkMake"><b>⬇ Sicherung erstellen</b><small>Eine Datei mit allen Bildern und dem Fortschritt (Ordner Downloads). Bewahre sie an einem sicheren Ort auf, z. B. in der Cloud oder auf dem PC.</small></button>
+    <button class="opt" id="bkRestore"><b>⬆ Sicherung wiederherstellen</b><small>Sicherungsdatei auswählen. Bilder mit neuerem Stand auf dem Gerät bleiben unverändert.</small></button>
+    <input id="bkFile" type="file" hidden>
+    <div class="mrow"><button id="bkClose">Schließen</button></div>
+  </div>
+</div>
+
 <script>
 /*
-  ZAHLENMALER – Malen nach Zahlen mit eigenen Bildern (läuft offline im Browser)
+  ZAHLENMALER – Malen nach Zahlen mit eigenen Bildern (läuft offline im Browser, installierbar als App)
 
-  ÜBERSICHT
-   1. ZUSTAND & HILFSFUNKTIONEN
-        Globale Variablen (aktuelles Bild S, Ansicht, Werkzeuge) und kleine Helfer.
-   2. SPEICHER (IndexedDB)
-        Bilder und Fortschritt werden lokal im Browser gespeichert (Datenbank "mnz").
-   3. BILD → ZAHLEN
-        Farbreduktion per Median-Cut, Farbtabellen, Mini-Vorschau (Galerie & Neues Bild).
-   4. ANSICHTEN & GALERIE
-        Wechsel zwischen Galerie, "Neues Bild" und Malbildschirm; Galerie-Karten.
-   5. NEUES BILD
-        Bild laden, Ausschnitt-Rahmen, Größe (Breite/Höhe/Farben), Live-Vorschau.
-   6. MALBILDSCHIRM
-        Palette, Zeichnen des Bildes (Render), Malen, Strafmodus-Logik.
-   7. EINGABE
-        Zeiger-Ereignisse: Finger (verschieben/zoomen), Stift (malen; Knopf = verschieben), Maus.
-   8. WERKZEUGE & SCHALTER
-        Werkzeugleiste, Zoomtasten, Strafmodus, Suchknopf, Stift-Test (Diagnose).
-   9. APP-INSTALLATION (PWA)
-        Manifest, Service Worker, Teilen aus der Galerie.
-   10. START
-        Galerie anzeigen und ggf. geteiltes Bild übernehmen.
+  DATEIAUFBAU (eine Datei): 1. CSS  2. HTML (drei Ansichten)  3. JavaScript (dieser Block)
 
-  WICHTIGE GLOBALE DINGE
-   S           aktuelles Bild: {id,name,w,h,pal,idx,done,smudge,mis,...}
-               idx[i] = Farbnummer der Zelle i, done[i] = 1 wenn angemalt
-   sel         gewählte Farbnummer (0-basiert)
-   scale,ox,oy Zoom und Verschiebung im Malbildschirm
-   CI,R        Quellbild und Ausschnitt-Rahmen in "Neues Bild"
-   render()    zeichnet den Malbildschirm; draw() plant einen Render pro Frame
-   $("id")     Kurzform für document.getElementById
+  ABSCHNITTE
+    1. KONFIGURATION, DOM & GLOBALER ZUSTAND
+    2. SPEICHER (IndexedDB)
+    3. SICHERUNG & SPEICHERSTATUS
+    4. ALLGEMEINE UI-HELFER
+    5. BILD → ZAHLEN
+    6. GALERIE
+    7. EXPORT (PNG) & UMBENENNEN
+    8. NEUES BILD
+    9. MALBILDSCHIRM (ANZEIGE)
+   10. MALEN (SPIELLOGIK)
+   11. EINGABE (FINGER, STIFT, MAUS)
+   12. OPTIONEN-MENÜ
+   13. ZOOM- & SUCHKNÖPFE
+   14. STIFT-TEST (DIAGNOSE)
+   15. APP-INSTALLATION (PWA) & TEILEN
+   16. START
+
+  FEHLERSUCHE – Symptom -> wo schauen?
+   Stift malt/verschiebt falsch ........ 11 (role, startsOnTarget), Toleranz: penTol in 1, Regler in 12
+   Ruckeln beim Zoomen/Malen ........... 9 (render, fastOn), 10 (paintAt)
+   Bild/Fortschritt nicht gespeichert .. 2 (save, saveSoon, saveFailed), 3 (Status), 16 (Start)
+   Bilder verschwunden / Sicherung ..... 3 (doBackup, doRestore), 2 (Datenbank)
+   Galerie zeigt Falsches/langsam ...... 6 (gallery, loadMetas), 2 (makeMeta, thumbCanvas)
+   Ausschnitt/Vorschau/Größe ........... 8 (cropLayout, setDims, preview)
+   Farben oder Zahlen falsch ........... 5 (quant, prep)
+   Palette unten ....................... 9 (buildPal, swUpd, choose)
+   Menü, Zeichenmodus, Strafmodus ...... 12
+   ⤢ Einpassen, 🎯 Suchen, Zoomtasten ... 13
+   Speichern als PNG, Umbenennen ....... 7
+   Installation, Offline, Update ....... 15 (und sw.js)
+
+  DATENMODELL (ein Bild S)
+   S = { id, name, w, h, pal, idx, done, smudge, mis, updated }          (Tabelle "pics")
+   meta = { id, name, w, h, updated, total, left, mis, thumb }           (Tabelle "meta", für die Galerie)
+        thumb = kleines PNG (Blob). meta wird bei jedem Speichern mitgeschrieben; fehlende Einträge
+        (z. B. von älteren Versionen) baut die Galerie beim Öffnen nach.
+   Zelle i = y * w + x.  idx[i] = Farbnummer (0-basiert),  done[i] = 1 wenn angemalt,
+   smudge[i] = 0..3 (Strafmodus), mis = Anzahl Fehler.  Abgeleitet (nicht gespeichert):
+   css, rgb32, gr32, left (offene Felder je Farbe), oc/img/u32 (Zwischenspeicher-Bitmap).
+
+  KONVENTIONEN
+   - Bei JEDER Änderung APP_VERSION (Abschnitt 1) hochzählen; sie steht in der Galerie.
+   - Neue Elemente mit id im HTML anlegen und per $("id") ansprechen.
+   - Der Code läuft ohne Build-Schritt; Reihenfolge: erst Zustand (1), dann Funktionen, Ereignisse am Ende.
+   - Datenbank-Aufbau ändern: DB_VERSION erhöhen und onupgradeneeded anpassen. Nach einem Update NICHT mehr
+     auf eine ältere App-Version zurückgehen (die könnte die neuere Datenbank nicht öffnen) – vorher Sicherung machen.
+   - Weitere Dateien im App-Paket: sw.js (Service Worker, Cache-Name erhöhen wenn Dateiliste sich ändert),
+     manifest.webmanifest, icon-192.png, icon-512.png.
 */
 
 // ======================================================================
-// 1. ZUSTAND & HILFSFUNKTIONEN
-// Globale Variablen (aktuelles Bild S, Ansicht, Werkzeuge) und kleine Helfer.
+// 1. KONFIGURATION, DOM & GLOBALER ZUSTAND
+// Alle Konstanten, DOM-Verweise und veränderlichen Variablen stehen hier gesammelt.
+// Neue globale Variablen immer hier ergänzen und kurz kommentieren.
 // ======================================================================
+
+// --- Konstanten ---
+
+// Version (steht in der Galerie) – bei JEDER Änderung hochzählen
+const APP_VERSION = "v12 · 21.11.";
+
+// Toleranz in Pixeln, mit der der Stift ein offenes Feld "trifft" (siehe startsOnTarget)
+const PEN_TOLERANCE = 8;
+
+// Farbe der hervorgehobenen (gewählten) Felder als 32-Bit-Wert (ABGR)
+const SEL32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
+
+// Namen der Zeichenmodi (Reihenfolge = Wert von mode)
+const MODE_NAMES = ["Stift automatisch", "Finger malt auch", "Nur bewegen"];
+
+// --- DOM-Verweise ---
+
 const $ = (id) => document.getElementById(id);
 const cv = $("cv");
 const ctx = cv.getContext("2d");
-let S = null;
-let sel = 0;
-let scale = 1;
-let minS = 0.5;
-let ox = 0;
-let oy = 0;
-let mode = 0;
+const cc = $("cc");
+const cctx = cc.getContext("2d");
+const menu = $("menu");
+const dbgEl = $("dbgp");
+
+// --- Gerät ---
+
+// Kann das Gerät Bilddateien über das Teilen-Menü senden?
+const canShareFiles = !!(navigator.canShare && navigator.canShare({ files: [new File([""], "a.png", { type: "image/png" })] }));
+
+// Pixeldichte des Bildschirms (für scharfe Darstellung)
 let dpr = window.devicePixelRatio || 1;
+
+// --- Zustand: Malbildschirm (S = aktuelles Bild, sel = gewählte Farbe, scale/ox/oy = Zoom und Verschiebung) ---
+
+// aktuelles Bild (Aufbau siehe "DATENMODELL" oben)
+let S = null;
+
+// gewählte Farbnummer (0-basiert)
+let sel = 0;
+
+// Zoom: Bildschirm-Pixel je Zelle
+let scale = 1;
+
+// kleinster erlaubter Zoom
+let minS = 0.5;
+
+// Verschiebung des Bildes in Bildschirm-Pixeln
+let ox = 0;
+
+// Verschiebung des Bildes nach unten (siehe ox)
+let oy = 0;
+
+// ID des geplanten Zeichenvorgangs (requestAnimationFrame)
 let raf = 0;
+
+// Palette: die Farbfelder unten
 let sw = [];
+
+// true, wenn seit dem letzten Speichern gemalt wurde
 let dirty = false;
-const APP_VERSION = "v6 · 20.11.";
-const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
+
+// Position des gelben Suchrings (🎯) oder null
 let ping = null;
+
+// zuletzt angesprungenes Feld (🎯), damit der nächste Tipp zum nächsten Feld springt
 let lastJump = -1;
-let penalty = false;
+
+// true während Verschieben/Zoomen: Kanten, Linien und Zahlen werden kurz ausgeblendet
 let fast = false;
+
+// Timer, der die Details nach dem Bewegen wieder einblendet
 let fastT = 0;
+
+// Farbfelder, deren Beschriftung beim nächsten Frame aktualisiert wird
+const swQ = new Set();
+
+// ID dieser geplanten Aktualisierung
+let swRaf = 0;
+
+// --- Zustand: Eingabe (Stift, Finger, Maus) und Einstellungen ---
+
+// aktive Zeiger (Finger/Stift/Maus) mit ihrer Rolle
+const P = new Map();
+
+// Zwei-Finger-Zoom: letzter Abstand und Mittelpunkt
+let pin = null;
+
+// Tipp zum Stift wurde in dieser Sitzung schon gezeigt
+let hintShown = false;
+
+// Felder, die im aktuellen Strich schon als Fehler gezählt wurden
+const stroke = new Set();
+
+// true, solange das Gerät einen gedrückten Stift-Knopf meldet
 let penBtn = false;
-const stroke = /* @__PURE__ */ new Set();
-const SEL32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
+
+// Zeichenmodus: 0 = Stift automatisch, 1 = Finger malt auch, 2 = nur bewegen
+let mode = 0;
+
+// Strafmodus an/aus
+let penalty = false;
+
+// Toleranz beim Aufsetzen des Stifts in Pixeln (einstellbar im Optionen-Menü, Standard PEN_TOLERANCE)
+let penTol = PEN_TOLERANCE;
+
+// --- Zustand: Neues Bild (Ausschnitt-Rahmen R, Zielgröße gw × gh) ---
+
+// geladenes Quellbild (Canvas)
+let CI = null;
+
+// Name für das neue Bild (aus dem Dateinamen)
+let fname = "Bild";
+
+// gewähltes Format: "orig" oder eine Zahl (z. B. 1.7778)
+let asp = "orig";
+
+// Seitenverhältnis des Ausschnitt-Rahmens (Breite / Höhe)
+let fa = 1;
+
+// Größe des Ausschnitt-Fensters in Pixeln (Breite)
+let Dw = 10;
+
+// Größe des Ausschnitt-Fensters in Pixeln (Höhe)
+let Dh = 10;
+
+// Maßstab: Anzeige-Pixel je Bildpixel im Ausschnitt-Fenster
+let ds = 1;
+
+// Ausschnitt-Rahmen in Bildkoordinaten {x, y, w}; Höhe = w / fa
+let R = { x: 0, y: 0, w: 1 };
+
+// Zielgröße des Malbildes in Zellen (Breite)
+let gw = 200;
+
+// Zielgröße des Malbildes in Zellen (Höhe, ergibt sich aus Breite und Seitenverhältnis)
+let gh = 200;
+
+// Timer der verzögerten Vorschau
+let tm = 0;
+
+// laufender Zug am Ausschnitt-Rahmen (Verschieben oder Größe ändern)
+let drag = null;
+
+// aktive Zeiger im Ausschnitt-Fenster
+const CP = new Map();
+
+// Zwei-Finger-Zoom im Ausschnitt-Fenster: letzter Abstand
+let cpin = 0;
+
+// --- Zustand: Stift-Test ---
+
+let dbgOn = false;
+let dbgLines = [];
+
+// --- Zustand: Speichern ---
+
+// Timer des verzögerten Speicherns
+let saveT = 0;
+
+// true, wenn es Änderungen gibt, die noch nicht gespeichert wurden
+let savePending = false;
+
+// Beschreibung des letzten Speicherfehlers oder null
+let lastSaveError = null;
+
+// Zeitpunkt der letzten erfolgreichen Speicherung
+let lastSaveOk = 0;
+
+// Zeitpunkt der letzten Fehlermeldung (damit nicht ständig gemeldet wird)
+let lastErrToast = 0;
+
+// Bild, dessen Speicherung fehlgeschlagen ist und erneut versucht wird
+let unsaved = null;
+
+// Ergebnis der Anfrage "Speicher dauerhaft sichern": true / false / null (unbekannt)
+let storagePersisted = null;
+
+// Adressen der Galerie-Vorschaubilder (werden beim Neuaufbau freigegeben)
+const thumbUrls = [];
+
+// --- Helfer ---
+
+const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
+
+// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol) ---
+
 try {
   penalty = localStorage.getItem("mnz-pen") === "1";
 } catch (e) {
 }
 
+try {
+  mode = Math.min(2, Math.max(0, +localStorage.getItem("mnz-mode") || 0));
+} catch (e) {
+}
+
+try {
+  const t = localStorage.getItem("mnz-tol");
+  if (t !== null && t !== "" && Number.isFinite(+t)) penTol = Math.min(30, Math.max(0, Math.round(+t)));
+} catch (e) {
+}
+
 // ======================================================================
 // 2. SPEICHER (IndexedDB)
-// Bilder und Fortschritt werden lokal im Browser gespeichert (Datenbank "mnz").
+// Datenbank "mnz" (Version 2) mit zwei Tabellen:
+//   pics = komplettes Bild (Farben, Zellen, Fortschritt) -> wird zum Malen geladen
+//   meta = Kurzinfo für die Galerie (Name, Größe, Fortschritt, Vorschaubild) -> schnell zu laden
+// Gespeichert wird verzögert (saveSoon, nach dem Strich) und sofort beim Verlassen/Ausblenden (save).
+// Fehler werden sichtbar gemeldet (saveFailed) und das Speichern wird wiederholt.
+// Neues Feld pro Bild: in recordOf() ergänzen UND in openPic() mit Standardwert versehen,
+// weil ältere gespeicherte Bilder das Feld noch nicht haben.
 // ======================================================================
+const DB_VERSION = 2;
+
 const DB = new Promise((res, rej) => {
-  const r = indexedDB.open("mnz", 1);
-  r.onupgradeneeded = () => r.result.createObjectStore("pics", { keyPath: "id" });
-  r.onsuccess = () => res(r.result);
+  const r = indexedDB.open("mnz", DB_VERSION);
+  r.onupgradeneeded = () => {
+    const db = r.result;
+    if (!db.objectStoreNames.contains("pics")) db.createObjectStore("pics", { keyPath: "id" });
+    if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "id" });
+  };
+  r.onsuccess = () => {
+    r.result.onversionchange = () => r.result.close();
+    res(r.result);
+  };
   r.onerror = () => rej(r.error);
+  r.onblocked = () => toast("Bitte alle anderen Fenster der App schließen, damit der Speicher aktualisiert werden kann.");
 });
-const tx = async (m, f) => {
+
+// Fehler beim Öffnen werden bei jeder Benutzung gemeldet (save, gallery); hier nur "als gesehen" markieren
+DB.catch(() => {
+});
+
+// Führt f(store, ...) in einer Transaktion aus; stores = Tabellenname oder Liste von Namen
+const tx = async (stores, mode, f) => {
   const db = await DB;
+  const names = [].concat(stores);
   return new Promise((res, rej) => {
-    const t = db.transaction("pics", m), q = f(t.objectStore("pics"));
+    const t = db.transaction(names, mode);
+    const q = f(...names.map((n) => t.objectStore(n)));
     t.oncomplete = () => res(q && q.result);
     t.onerror = () => rej(t.error);
+    t.onabort = () => rej(t.error || new Error("Speichern abgebrochen"));
   });
 };
-const dbPut = (o) => tx("readwrite", (s) => s.put(o));
-const dbAll = () => tx("readonly", (s) => s.getAll());
-const dbDel = (id) => tx("readwrite", (s) => s.delete(id));
-function save() {
-  if (!S) return;
-  S.updated = Date.now();
-  dbPut({ id: S.id, name: S.name, w: S.w, h: S.h, pal: S.pal, idx: S.idx, done: S.done, smudge: S.smudge, mis: S.mis || 0, updated: S.updated }).catch(() => {
+
+const dbGet = (id) => tx("pics", "readonly", (s) => s.get(id));
+const dbAll = () => tx("pics", "readonly", (s) => s.getAll());
+const dbKeys = () => tx("pics", "readonly", (s) => s.getAllKeys());
+const metaAll = () => tx("meta", "readonly", (s) => s.getAll());
+const metaPut = (m) => tx("meta", "readwrite", (s) => s.put(m));
+const metaDel = (id) => tx("meta", "readwrite", (s) => s.delete(id));
+const dbDel = (id) => tx(["pics", "meta"], "readwrite", (p, m) => {
+  p.delete(id);
+  m.delete(id);
+});
+
+function recordOf(s) {
+  return { id: s.id, name: s.name, w: s.w, h: s.h, pal: s.pal, idx: s.idx, done: s.done, smudge: s.smudge || new Uint8Array(s.idx.length), mis: s.mis || 0, updated: s.updated };
+}
+
+function leftOf(s) {
+  let n = 0;
+  for (let i = 0; i < s.done.length; i++) if (!s.done[i]) n++;
+  return n;
+}
+
+// Kleines Vorschaubild für die Galerie: gemalte Felder farbig, offene hellgrau (höchstens 240 px)
+function thumbCanvas(s) {
+  if (!s.rgb32) prep(s);
+  const c = document.createElement("canvas");
+  c.width = s.w;
+  c.height = s.h;
+  const x = c.getContext("2d");
+  const img = x.createImageData(s.w, s.h);
+  const u = new Uint32Array(img.data.buffer);
+  for (let i = 0; i < s.idx.length; i++) u[i] = s.done[i] ? s.rgb32[s.idx[i]] : s.gr32[s.idx[i]];
+  x.putImageData(img, 0, 0);
+  const k = Math.min(1, 240 / Math.max(s.w, s.h));
+  if (k === 1) return c;
+  const t = document.createElement("canvas");
+  t.width = Math.max(1, Math.round(s.w * k));
+  t.height = Math.max(1, Math.round(s.h * k));
+  t.getContext("2d").drawImage(c, 0, 0, t.width, t.height);
+  return t;
+}
+
+// Kurzinfo für die Galerie (Tabelle meta)
+async function makeMeta(s) {
+  const thumb = await new Promise((res) => thumbCanvas(s).toBlob(res, "image/png"));
+  return { id: s.id, name: s.name, w: s.w, h: s.h, updated: s.updated || 0, total: s.idx.length, left: leftOf(s), mis: s.mis || 0, thumb };
+}
+
+// Schreibt Bild und Kurzinfo gemeinsam (entweder beides oder nichts)
+async function putPic(s) {
+  const meta = await makeMeta(s);
+  await tx(["pics", "meta"], "readwrite", (p, m) => {
+    p.put(recordOf(s));
+    m.put(meta);
   });
 }
+
+function describeError(e) {
+  if (e && e.name === "QuotaExceededError") return "Gerätespeicher voll";
+  return e && (e.message || e.name) || "unbekannter Fehler";
+}
+
+// Warnzeichen (rot) an den Knöpfen, solange das Speichern nicht funktioniert
+function setWarn(on) {
+  for (const id of ["menuBtn", "bkOpen"]) $(id).classList.toggle("warn", on);
+}
+
+function saveOk() {
+  lastSaveOk = Date.now();
+  if (lastSaveError) {
+    lastSaveError = null;
+    setWarn(false);
+    toast("Speichern funktioniert wieder ✓");
+  }
+}
+
+function saveFailed(e, s) {
+  lastSaveError = describeError(e);
+  unsaved = s;
+  setWarn(true);
+  if (Date.now() - lastErrToast > 15000) {
+    lastErrToast = Date.now();
+    toast("⚠ Nicht gespeichert: " + lastSaveError + ". Erstelle eine Sicherung (💾).");
+  }
+  savePending = true;
+  clearTimeout(saveT);
+  saveT = setTimeout(save, 5000);
+}
+
+// Speichern in 0,6 s (nach dem letzten Strich); mehrere Striche werden zusammengefasst
+function saveSoon() {
+  savePending = true;
+  clearTimeout(saveT);
+  saveT = setTimeout(save, 600);
+}
+
+// Sofort speichern (Verlassen, Ausblenden, neues Bild, Wiederholung nach Fehler)
+async function save() {
+  clearTimeout(saveT);
+  savePending = false;
+  const s = S || unsaved;
+  if (!s) return;
+  s.updated = Date.now();
+  try {
+    await putPic(s);
+    if (unsaved === s) unsaved = null;
+    saveOk();
+  } catch (e) {
+    saveFailed(e, s);
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && savePending) save();
+});
+
+window.addEventListener("pagehide", () => {
+  if (savePending) save();
+});
+
+// ======================================================================
+// 3. SICHERUNG & SPEICHERSTATUS
+// Sicherung = eine Datei (.zmal) mit allen Bildern und dem Fortschritt (gepackt). Wiederherstellen liest sie
+// wieder ein; Bilder, die auf dem Gerät einen neueren oder gleichen Stand haben, bleiben unverändert.
+// Außerdem: Anzeige, ob der Browser die Daten dauerhaft behält, und wie viel Platz belegt ist.
+// Erreichbar über 💾 in der Galerie und über Optionen -> Speicher & Sicherung.
+// ======================================================================
+const b64enc = (a) => {
+  let s = "";
+  for (let i = 0; i < a.length; i += 8192) s += String.fromCharCode.apply(null, a.subarray(i, i + 8192));
+  return btoa(s);
+};
+
+const b64dec = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+function downloadBlob(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+// --- Sicherung erstellen ---
+
+async function makeBackupFile() {
+  const recs = await dbAll();
+  const data = {
+    app: "zahlenmaler",
+    format: 1,
+    created: Date.now(),
+    pics: recs.map((r) => ({ id: r.id, name: r.name, w: r.w, h: r.h, pal: r.pal, idx: b64enc(r.idx), done: b64enc(r.done), smudge: b64enc(r.smudge || new Uint8Array(r.idx.length)), mis: r.mis || 0, updated: r.updated })),
+  };
+  let blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+  if (window.CompressionStream) blob = await new Response(blob.stream().pipeThrough(new CompressionStream("gzip"))).blob();
+  return { blob, count: recs.length };
+}
+
+async function doBackup() {
+  try {
+    if (savePending) await save();
+    const { blob, count } = await makeBackupFile();
+    if (!count) {
+      toast("Es gibt noch keine Bilder zum Sichern");
+      return;
+    }
+    const d = new Date(), pad = (n) => String(n).padStart(2, "0");
+    downloadBlob(blob, `Zahlenmaler-Sicherung-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.zmal`);
+    toast(`Sicherung erstellt: ${count} Bild${count === 1 ? "" : "er"} (${(blob.size / 1e6).toFixed(1)} MB)`);
+  } catch (e) {
+    toast("Sicherung fehlgeschlagen: " + describeError(e));
+  }
+}
+
+// --- Sicherung wiederherstellen ---
+
+async function readBackup(file) {
+  const u8 = new Uint8Array(await file.arrayBuffer());
+  let text;
+  if (u8[0] === 31 && u8[1] === 139) {
+    if (!window.DecompressionStream) throw new Error("Dieser Browser kann die Sicherung nicht entpacken");
+    try {
+      text = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    } catch (e) {
+      throw new Error("Die Sicherungsdatei ist beschädigt oder unvollständig");
+    }
+  } else {
+    text = new TextDecoder().decode(u8);
+  }
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error("Das ist keine Zahlenmaler-Sicherung");
+  }
+  if (!data || data.app !== "zahlenmaler" || !Array.isArray(data.pics)) throw new Error("Das ist keine Zahlenmaler-Sicherung");
+  return data;
+}
+
+// Prüft ein Bild aus der Sicherung streng; liefert einen Datensatz oder null
+function recordFromBackup(p) {
+  if (!p || typeof p !== "object") return null;
+  const { w, h } = p;
+  if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || h < 1 || w > 1000 || h > 1000) return null;
+  if (typeof p.id !== "number" || typeof p.name !== "string") return null;
+  if (!Array.isArray(p.pal) || p.pal.length < 1 || p.pal.length > 255) return null;
+  if (!p.pal.every((c) => Array.isArray(c) && c.length === 3 && c.every((v) => Number.isInteger(v) && v >= 0 && v <= 255))) return null;
+  if (typeof p.idx !== "string" || typeof p.done !== "string") return null;
+  let idx, done, smudge = null;
+  try {
+    idx = b64dec(p.idx);
+    done = b64dec(p.done);
+    if (typeof p.smudge === "string") smudge = b64dec(p.smudge);
+  } catch (e) {
+    return null;
+  }
+  const n = w * h;
+  if (idx.length !== n || done.length !== n) return null;
+  for (let i = 0; i < n; i++) if (idx[i] >= p.pal.length) return null;
+  if (!smudge || smudge.length !== n) smudge = new Uint8Array(n);
+  return { id: p.id, name: cleanName(p.name) || "Bild", w, h, pal: p.pal, idx, done, smudge, mis: Number.isInteger(p.mis) ? p.mis : 0, updated: Number.isFinite(p.updated) ? p.updated : Date.now() };
+}
+
+async function doRestore(file) {
+  try {
+    if (savePending) await save();
+    const data = await readBackup(file);
+    let restored = 0, skipped = 0, invalid = 0;
+    const ids = new Set();
+    for (const p of data.pics) {
+      const rec = recordFromBackup(p);
+      if (!rec) {
+        invalid++;
+        continue;
+      }
+      const have = await dbGet(rec.id);
+      if (have && have.updated >= rec.updated) {
+        skipped++;
+        continue;
+      }
+      await putPic(rec);
+      ids.add(rec.id);
+      restored++;
+    }
+    toast(`${restored} wiederhergestellt` + (skipped ? `, ${skipped} unverändert (Gerät hat gleichen oder neueren Stand)` : "") + (invalid ? `, ${invalid} ungültig` : ""));
+    if (S && ids.has(S.id)) openPic(await dbGet(S.id));
+    else if (!$("gal").hidden) gallery();
+    $("bkModal").hidden = true;
+  } catch (e) {
+    toast("Wiederherstellen nicht möglich: " + describeError(e));
+  }
+}
+
+// --- Speicherstatus ---
+
+async function requestPersist() {
+  try {
+    if (navigator.storage && navigator.storage.persist) storagePersisted = await navigator.storage.persisted() || await navigator.storage.persist();
+  } catch (e) {
+  }
+}
+
+async function storageInfoLines() {
+  const L = [];
+  if (storagePersisted === true) L.push("✓ Der Speicher ist dauerhaft gesichert: Der Browser löscht ihn nicht von selbst.");
+  else if (storagePersisted === false) L.push("⚠ Der Speicher ist NICHT dauerhaft gesichert: Bei Platzmangel oder beim Löschen der Browser-Daten können Bilder verloren gehen. Erstelle regelmäßig eine Sicherung.");
+  else L.push("Ob der Speicher dauerhaft gesichert ist, lässt sich auf diesem Gerät nicht feststellen. Erstelle regelmäßig eine Sicherung.");
+  try {
+    const e = await navigator.storage.estimate();
+    L.push(`Belegt: ${(e.usage / 1e6).toFixed(1)} MB von etwa ${(e.quota / 1e9).toFixed(1)} GB (Schätzung des Browsers)`);
+  } catch (e) {
+  }
+  try {
+    L.push(`Gespeicherte Bilder: ${(await dbKeys()).length}`);
+  } catch (e) {
+    L.push("⚠ Auf den Speicher kann nicht zugegriffen werden: " + describeError(e));
+  }
+  if (lastSaveError) L.push("⚠ Letzte Speicherung fehlgeschlagen: " + lastSaveError);
+  else if (lastSaveOk) L.push("Letzte Speicherung: " + new Date(lastSaveOk).toLocaleTimeString("de-DE") + " ✓");
+  else L.push("Seit dem Start wurde noch nichts gespeichert.");
+  return L;
+}
+
+async function openStorageDialog() {
+  toggleMenu(false);
+  $("bkModal").hidden = false;
+  $("bkInfo").textContent = "Prüfe …";
+  await requestPersist();
+  const lines = await storageInfoLines();
+  $("bkInfo").replaceChildren(...lines.map((t) => {
+    const p = document.createElement("p");
+    p.textContent = t;
+    return p;
+  }));
+}
+
+// --- Bedienelemente ---
+
+$("bkOpen").onclick = openStorageDialog;
+$("bkClose").onclick = () => {
+  $("bkModal").hidden = true;
+};
+$("bkModal").onclick = (e) => {
+  if (e.target === $("bkModal")) $("bkModal").hidden = true;
+};
+$("bkMake").onclick = doBackup;
+$("bkRestore").onclick = () => $("bkFile").click();
+$("bkFile").onchange = (e) => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (f) doRestore(f);
+};
+
+// ======================================================================
+// 4. ALLGEMEINE UI-HELFER
+// toast = Meldung unten, view = zwischen Galerie / Neues Bild / Malen wechseln,
+// askName = Eingabefenster (Promise: Text oder null bei Abbruch).
+// ======================================================================
 function toast(t) {
   const e = $("toast");
   e.textContent = t;
@@ -603,9 +1346,42 @@ function toast(t) {
   e._t = setTimeout(() => e.hidden = true, 2500);
 }
 
+function view(v) {
+  for (const k of ["gal", "nw", "ed"]) $(k).hidden = k !== v;
+}
+
+// Zeigt das Eingabefenster; liefert den Text oder null bei Abbruch
+function askName(current) {
+  return new Promise((resolve) => {
+    const m = $("modal"), inp = $("nameIn");
+    inp.value = current;
+    m.hidden = false;
+    setTimeout(() => {
+      inp.focus();
+      inp.select();
+    }, 50);
+    const close = (v) => {
+      m.hidden = true;
+      $("nameOk").onclick = $("nameCancel").onclick = inp.onkeydown = m.onclick = null;
+      resolve(v);
+    };
+    $("nameOk").onclick = () => close(inp.value);
+    $("nameCancel").onclick = () => close(null);
+    inp.onkeydown = (e) => {
+      if (e.key === "Enter") close(inp.value);
+      if (e.key === "Escape") close(null);
+    };
+    m.onclick = (e) => {
+      if (e.target === m) close(null);
+    };
+  });
+}
+
 // ======================================================================
-// 3. BILD → ZAHLEN
-// Farbreduktion per Median-Cut, Farbtabellen, Mini-Vorschau (Galerie & Neues Bild).
+// 5. BILD → ZAHLEN
+// quant: Farbreduktion (Median-Cut) und Zuordnung jeder Zelle zur nächsten Farbe.
+// prep: berechnet Farbtabellen (css/rgb32/Grautöne) und die Zähler "left" je Farbe.
+// mini: kleine Vorschau (Galerie-Karten und Vorschau in "Neues Bild").
 // ======================================================================
 function quant(img, rg, gw2, gh2, k) {
   const c = document.createElement("canvas");
@@ -653,7 +1429,7 @@ function quant(img, rg, gw2, gh2, k) {
     return s.map((v) => Math.round(v / b.ids.length));
   });
   pal.sort((a, b) => lum(a) - lum(b));
-  const idx = new Uint8Array(n), cache = /* @__PURE__ */ new Map();
+  const idx = new Uint8Array(n), cache = new Map();
   for (let i = 0; i < n; i++) {
     const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2], key = r << 16 | g << 8 | b;
     let c2 = cache.get(key);
@@ -673,6 +1449,7 @@ function quant(img, rg, gw2, gh2, k) {
   }
   return { w: gw2, h: gh2, pal, idx };
 }
+
 function prep(s) {
   s.rgb32 = s.pal.map((p) => (255 << 24 | p[2] << 16 | p[1] << 8 | p[0]) >>> 0);
   s.gr32 = s.pal.map((p) => {
@@ -687,6 +1464,7 @@ function prep(s) {
   s.left = new Array(s.pal.length).fill(0);
   for (let i = 0; i < s.idx.length; i++) if (!(s.done && s.done[i])) s.left[s.idx[i]]++;
 }
+
 function mini(c, s, m, edges) {
   c.width = s.w * m;
   c.height = s.h * m;
@@ -707,133 +1485,224 @@ function mini(c, s, m, edges) {
 }
 
 // ======================================================================
-// 4. ANSICHTEN & GALERIE
-// Wechsel zwischen Galerie, "Neues Bild" und Malbildschirm; Galerie-Karten.
+// 6. GALERIE
+// gallery(): baut die Karten (Vorschau, Fortschritt, ⬇ ✎ ↗ ✕) aus der kleinen Tabelle "meta" – schnell, auch bei vielen
+// Bildern. Das ganze Bild wird erst beim Öffnen/Exportieren/Umbenennen einer Karte geladen (dbGet).
+// loadMetas() baut fehlende Kurzinfos (z. B. von älteren Versionen) einmalig nach.
 // ======================================================================
-function view(v) {
-  for (const k of ["gal", "nw", "ed"]) $(k).hidden = k !== v;
+async function loadMetas() {
+  const [metas, keys] = await Promise.all([metaAll(), dbKeys()]);
+  const keySet = new Set(keys), have = new Set(metas.map((m) => m.id));
+  const out = metas.filter((m) => keySet.has(m.id));
+  const missing = keys.filter((k) => !have.has(k));
+  if (missing.length) {
+    toast("Bilder werden vorbereitet …");
+    for (const k of missing) {
+      const rec = await dbGet(k);
+      if (!rec) continue;
+      prep(rec);
+      const m = await makeMeta(rec);
+      await metaPut(m);
+      out.push(m);
+    }
+  }
+  metas.filter((m) => !keySet.has(m.id)).forEach((m) => metaDel(m.id).catch(() => {
+  }));
+  return out;
 }
+
 async function gallery() {
   view("gal");
   const g = $("grid");
+  thumbUrls.splice(0).forEach((u) => URL.revokeObjectURL(u));
   g.innerHTML = "";
-  let recs = [];
+  let metas = [];
   try {
-    recs = await dbAll();
+    metas = await loadMetas();
   } catch (e) {
+    g.innerHTML = '<div class="empty">⚠ Der Speicher dieses Geräts ist nicht verfügbar.<br>Bilder können gerade weder geladen noch gespeichert werden (z. B. privater Modus oder gesperrter Speicher).<br><small></small></div>';
+    g.querySelector("small").textContent = describeError(e);
+    setWarn(true);
+    return;
   }
-  recs.sort((a, b) => b.updated - a.updated);
-  if (!recs.length) {
+  if (!lastSaveError) setWarn(false);
+  metas.sort((a, b) => b.updated - a.updated);
+  if (!metas.length) {
     g.innerHTML = '<div class="empty">Noch keine Bilder.<br>Tippe auf „Neues Bild“, um loszulegen.</div>';
     return;
   }
-  for (const r of recs) {
-    prep(r);
-    const t = r.left.reduce((a, b) => a + b, 0), p = Math.floor((r.idx.length - t) / r.idx.length * 100);
+  for (const m of metas) {
+    const p = Math.floor((m.total - m.left) / m.total * 100);
     const el = document.createElement("div");
     el.className = "card";
-    const m = document.createElement("div");
-    m.className = "mat";
-    const c = document.createElement("canvas");
-    mini(c, r, Math.max(1, Math.floor(300 / r.w)), false);
-    m.appendChild(c);
-    el.appendChild(m);
-    el.insertAdjacentHTML("beforeend", `<div class="in"><b></b><small>${r.w}×${r.h} · ${t ? p + " % gemalt" : "Fertig ✓"}</small><div class="bar2"><i style="width:${p}%"></i></div></div><button class="x">✕</button>`);
-    el.querySelector("b").textContent = r.name;
-    el.onclick = () => openPic(r);
+    const mat = document.createElement("div");
+    mat.className = "mat";
+    const img = document.createElement("img");
+    img.alt = "";
+    if (m.thumb) {
+      const url = URL.createObjectURL(m.thumb);
+      thumbUrls.push(url);
+      img.src = url;
+    }
+    mat.appendChild(img);
+    el.appendChild(mat);
+    el.insertAdjacentHTML("beforeend", `<div class="in"><b></b><small>${m.w}×${m.h} · ${m.left ? p + " % gemalt" : "Fertig ✓"}</small><div class="bar2"><i style="width:${p}%"></i></div></div><button class="dl" title="Als Bild speichern">⬇</button><button class="ren" title="Umbenennen">✎</button>${canShareFiles ? '<button class="sh" title="Teilen">↗</button>' : ""}<button class="x">✕</button>`);
+    el.querySelector("b").textContent = m.name;
+    el.onclick = async () => {
+      try {
+        const rec = await dbGet(m.id);
+        if (!rec) {
+          toast("Bild nicht gefunden");
+          gallery();
+          return;
+        }
+        openPic(rec);
+      } catch (err) {
+        toast("Öffnen nicht möglich: " + describeError(err));
+      }
+    };
+    el.querySelector(".ren").onclick = async (e) => {
+      e.stopPropagation();
+      const rec = await dbGet(m.id);
+      if (rec) renamePic(rec, false);
+    };
+    el.querySelector(".dl").onclick = async (e) => {
+      e.stopPropagation();
+      const rec = await dbGet(m.id);
+      if (rec) exportPic(rec, false);
+    };
+    if (canShareFiles) {
+      el.querySelector(".sh").onclick = async (e) => {
+        e.stopPropagation();
+        const rec = await dbGet(m.id);
+        if (rec) exportPic(rec, true);
+      };
+    }
     el.querySelector(".x").onclick = async (e) => {
       e.stopPropagation();
-      if (confirm(`„${r.name}“ löschen?`)) {
-        await dbDel(r.id);
-        gallery();
+      if (confirm(`„${m.name}“ löschen?`)) {
+        try {
+          await dbDel(m.id);
+          gallery();
+        } catch (err) {
+          toast("Löschen nicht möglich: " + describeError(err));
+        }
       }
     };
     g.appendChild(el);
   }
 }
-function cellCol(i) {
-  const c = S.idx[i];
-  if (S.done[i]) return S.rgb32[c];
-  if (c === sel) return SEL32;
-  const L = S.smudge[i];
-  if (!L) return S.gr32[c];
-  const v = Math.round((S.gr32[c] & 255) * (1 - 0.1 * L));
-  return (255 << 24 | v + 4 << 16 | v << 8 | v) >>> 0;
-}
-function markDirty(i) {
-  const x = i % S.w, y = i / S.w | 0, d = S.dirty;
-  if (!d) S.dirty = { x0: x, y0: y, x1: x, y1: y };
-  else {
-    if (x < d.x0) d.x0 = x;
-    if (y < d.y0) d.y0 = y;
-    if (x > d.x1) d.x1 = x;
-    if (y > d.y1) d.y1 = y;
-  }
-}
-function refreshOC() {
-  const u = S.u32, n = S.idx.length;
-  for (let i = 0; i < n; i++) u[i] = cellCol(i);
-  S.dirty = { x0: 0, y0: 0, x1: S.w - 1, y1: S.h - 1 };
-}
-function buildOC() {
-  const oc = document.createElement("canvas");
-  oc.width = S.w;
-  oc.height = S.h;
-  S.octx = oc.getContext("2d");
-  S.oc = oc;
-  S.img = S.octx.createImageData(S.w, S.h);
-  S.u32 = new Uint32Array(S.img.data.buffer);
-  refreshOC();
-}
-function openPic(r) {
-  S = r;
-  prep(S);
-  if (!S.smudge) S.smudge = new Uint8Array(S.idx.length);
-  S.mis = S.mis || 0;
-  lastJump = -1;
-  buildOC();
-  view("ed");
-  $("ttl").textContent = S.name;
-  buildPal();
-  resize();
-  fit();
-  pickNext(0);
-  pct();
-}
-$("back").onclick = () => {
-  save();
-  S = null;
-  gallery();
-};
 
 // ======================================================================
-// 5. NEUES BILD
-// Bild laden, Ausschnitt-Rahmen, Größe (Breite/Höhe/Farben), Live-Vorschau.
+// 7. EXPORT (PNG) & UMBENENNEN
+// exportPic: speichert das Bild als PNG (Download) oder teilt es. Offene Felder sind hellgrau.
+// renamePic: Name ändern (Galerie oder Malbildschirm), bereinigt und gekürzt durch cleanName.
 // ======================================================================
-let CI = null;
-let fname = "Bild";
-let asp = "orig";
-let fa = 1;
-let Dw = 10;
-let Dh = 10;
-let ds = 1;
-let R = { x: 0, y: 0, w: 1 };
-let gw = 200;
-let gh = 200;
-let tm = 0;
-let drag = null;
-const cc = $("cc");
-const cctx = cc.getContext("2d");
-const CP = /* @__PURE__ */ new Map();
-let cpin = 0;
+function exportCanvas(r) {
+  const small = document.createElement("canvas");
+  small.width = r.w;
+  small.height = r.h;
+  const sx = small.getContext("2d");
+  const img = sx.createImageData(r.w, r.h);
+  const d = img.data;
+  for (let i = 0; i < r.idx.length; i++) {
+    const p = r.pal[r.idx[i]];
+    const done = r.done[i];
+    d[i * 4] = done ? p[0] : 233;
+    d[i * 4 + 1] = done ? p[1] : 234;
+    d[i * 4 + 2] = done ? p[2] : 237;
+    d[i * 4 + 3] = 255;
+  }
+  sx.putImageData(img, 0, 0);
+  const px = Math.max(1, Math.min(40, Math.floor(2400 / Math.max(r.w, r.h))));
+  const big = document.createElement("canvas");
+  big.width = r.w * px;
+  big.height = r.h * px;
+  const bx = big.getContext("2d");
+  bx.imageSmoothingEnabled = false;
+  bx.drawImage(small, 0, 0, big.width, big.height);
+  return big;
+}
+
+async function exportPic(r, share) {
+  try {
+    const blob = await new Promise((res) => exportCanvas(r).toBlob(res, "image/png"));
+    const name = (r.name || "Bild").replace(/[\\/:*?"<>|]+/g, "_") + ".png";
+    const unfinished = r.done.some((v) => !v);
+    if (share && canShareFiles) {
+      await navigator.share({ files: [new File([blob], name, { type: "image/png" })], title: r.name });
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast(unfinished ? `Gespeichert: ${name} (noch nicht fertig, offene Felder sind grau)` : `Gespeichert: ${name} (Downloads / Galerie)`);
+  } catch (err) {
+    if (err && err.name !== "AbortError") toast("Speichern nicht möglich: " + err.message);
+  }
+}
+
+function cleanName(v) {
+  return (v || "").replace(/\s+/g, " ").trim().slice(0, 60);
+}
+
+// Schreibt den neuen Namen in Bild und Kurzinfo (ohne den Zeitstempel zu ändern)
+async function renamePersist(r) {
+  await tx(["pics", "meta"], "readwrite", (p, m) => {
+    p.put(recordOf(r));
+    const g = m.get(r.id);
+    g.onsuccess = () => {
+      if (g.result) {
+        g.result.name = r.name;
+        m.put(g.result);
+      }
+    };
+  });
+}
+
+async function renamePic(r, inEditor) {
+  const raw = await askName(r.name);
+  if (raw === null) return;
+  const v = cleanName(raw);
+  if (!v) {
+    toast("Der Name darf nicht leer sein");
+    return;
+  }
+  if (v === r.name) return;
+  r.name = v;
+  try {
+    await renamePersist(r);
+  } catch (e) {
+    toast("Umbenennen nicht möglich: " + describeError(e));
+    return;
+  }
+  if (inEditor) $("ttl").textContent = v;
+  else gallery();
+  toast("Umbenannt: " + v);
+}
+
+// ======================================================================
+// 8. NEUES BILD
+// Bild laden, Ausschnitt-Rahmen ziehen, Größe wählen, Live-Vorschau, "Nutzen" erzeugt das Malbild.
+// Ablauf: handleFile -> cropLayout/setDims -> preview (verzögert) -> "Nutzen" (quant) -> openPic.
+// ======================================================================
+
+// --- Ausschnitt, Größe und Vorschau ---
+
 const maxW = () => Math.min(CI.width, CI.height * fa);
 const rh = () => R.w / fa;
 const region = () => ({ sx: R.x, sy: R.y, sw: R.w, sh: rh() });
+
 function st(t, err) {
   const e = $("fn");
   e.textContent = t;
   e.style.color = err ? "#ff8a8a" : "var(--mut)";
 }
+
 function clampR() {
   const m = maxW();
   R.w = Math.max(m / 12, Math.min(m, R.w));
@@ -841,6 +1710,7 @@ function clampR() {
   R.y = Math.max(0, Math.min(CI.height - rh(), R.y));
   $("zm").value = m / R.w;
 }
+
 function cropLayout(reset) {
   if (!CI) return;
   fa = asp === "orig" ? CI.width / CI.height : asp;
@@ -861,6 +1731,7 @@ function cropLayout(reset) {
   clampR();
   cropDraw();
 }
+
 function cropDraw() {
   if (!CI) return;
   const x = cctx;
@@ -888,6 +1759,7 @@ function cropDraw() {
   x.fillStyle = "#ffc857";
   for (const [px, py] of [[rx, ry], [rx + rw, ry], [rx, ry + h], [rx + rw, ry + h]]) x.fillRect(px - 8, py - 8, 16, 16);
 }
+
 function setZoom(z) {
   if (!CI) return;
   const cx = R.x + R.w / 2, cy = R.y + rh() / 2;
@@ -898,6 +1770,7 @@ function setZoom(z) {
   cropDraw();
   preview();
 }
+
 function setDims(k, v) {
   v = Math.max(10, Math.min(500, Math.round(+v) || 10));
   if (k === "w") {
@@ -922,6 +1795,7 @@ function setDims(k, v) {
   $("cnt").textContent = (gw * gh).toLocaleString("de-DE") + " Pixel";
   preview();
 }
+
 function preview() {
   if (!CI) return;
   clearTimeout(tm);
@@ -940,17 +1814,16 @@ function preview() {
     }
   }, 250);
 }
-$("new").onclick = () => {
-  view("nw");
-  cropLayout(false);
-};
-$("nback").onclick = gallery;
+
+// --- Bild laden ---
+
 const loadImg = (src) => new Promise((res, rej) => {
   const im = new Image();
   im.onload = () => res(im);
   im.onerror = () => rej(new Error("img"));
   im.src = src;
 });
+
 async function decode(f) {
   try {
     return await createImageBitmap(f);
@@ -977,6 +1850,7 @@ async function decode(f) {
   }
   throw new Error(`Die Datei lässt sich nicht lesen (Typ: ${f.type || "unbekannt"}, ${(f.size / 1e6).toFixed(2)} MB). Möglich: beschädigt, HEIC/HEIF oder noch nicht ganz heruntergeladen (Cloud). Öffne sie testweise im Browser oder speichere sie als JPG/PNG neu.`);
 }
+
 async function handleFile(f) {
   fname = (f.name || "Bild").replace(/\.[^.]+$/, "") || "Bild";
   st("Lade Bild …");
@@ -996,11 +1870,22 @@ async function handleFile(f) {
     st(err.message, 1);
   }
 }
+
+// --- Bedienelemente dieser Ansicht ---
+
+$("new").onclick = () => {
+  view("nw");
+  cropLayout(false);
+};
+
+$("nback").onclick = gallery;
+
 $("file").onchange = (e) => {
   const f = e.target.files[0];
   e.target.value = "";
   if (f) handleFile(f);
 };
+
 $("asp").onclick = (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -1013,14 +1898,17 @@ $("asp").onclick = (e) => {
   cropLayout(true);
   setDims("l", Math.max(gw, gh));
 };
+
 $("zm").oninput = () => setZoom(+$("zm").value);
 $("sl").oninput = () => setDims("l", $("sl").value);
 $("fw").onchange = () => setDims("w", $("fw").value);
 $("fh").onchange = () => setDims("h", $("fh").value);
+
 $("nc").oninput = () => {
   $("ncv").textContent = $("nc").value;
   preview();
 };
+
 $("use").onclick = () => {
   if (!CI) {
     toast("Wähle zuerst ein Bild");
@@ -1043,6 +1931,9 @@ $("use").onclick = () => {
     b.textContent = "Nutzen ✓";
   }, 30);
 };
+
+// --- Rahmen im Bild ziehen (Finger, Stift, Maus, Mausrad) ---
+
 cc.addEventListener("pointerdown", (e) => {
   if (!CI) return;
   cc.setPointerCapture(e.pointerId);
@@ -1067,6 +1958,7 @@ cc.addEventListener("pointerdown", (e) => {
   }
   cropDraw();
 });
+
 cc.addEventListener("pointermove", (e) => {
   const p = CP.get(e.pointerId);
   if (!p || !CI) return;
@@ -1106,22 +1998,70 @@ cc.addEventListener("pointermove", (e) => {
   cropDraw();
   preview();
 });
+
 const cup = (e) => {
   CP.delete(e.pointerId);
   cpin = 0;
   drag = null;
 };
+
 cc.addEventListener("pointerup", cup);
 cc.addEventListener("pointercancel", cup);
+
 cc.addEventListener("wheel", (e) => {
   e.preventDefault();
   if (CI) setZoom(maxW() / R.w * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
 }, { passive: false });
 
 // ======================================================================
-// 6. MALBILDSCHIRM
-// Palette, Zeichnen des Bildes (Render), Malen, Strafmodus-Logik.
+// 9. MALBILDSCHIRM (ANZEIGE)
+// Zeichnet das Bild: Das ganze Bild liegt als kleine Bitmap (1 Pixel je Zelle) im Speicher und wird
+// skaliert gezeichnet. Kanten, Linien und Zahlen kommen nur bei ausreichendem Zoom dazu.
+// Während Verschieben/Zoomen (fast = true) werden diese Details ausgeblendet, damit es flüssig bleibt.
 // ======================================================================
+
+// --- Zwischenspeicher-Bitmap (Farbe jeder Zelle) ---
+
+function cellCol(i) {
+  const c = S.idx[i];
+  if (S.done[i]) return S.rgb32[c];
+  if (c === sel) return SEL32;
+  const L = S.smudge[i];
+  if (!L) return S.gr32[c];
+  const v = Math.round((S.gr32[c] & 255) * (1 - 0.1 * L));
+  return (255 << 24 | v + 4 << 16 | v << 8 | v) >>> 0;
+}
+
+function markDirty(i) {
+  const x = i % S.w, y = i / S.w | 0, d = S.dirty;
+  if (!d) S.dirty = { x0: x, y0: y, x1: x, y1: y };
+  else {
+    if (x < d.x0) d.x0 = x;
+    if (y < d.y0) d.y0 = y;
+    if (x > d.x1) d.x1 = x;
+    if (y > d.y1) d.y1 = y;
+  }
+}
+
+function refreshOC() {
+  const u = S.u32, n = S.idx.length;
+  for (let i = 0; i < n; i++) u[i] = cellCol(i);
+  S.dirty = { x0: 0, y0: 0, x1: S.w - 1, y1: S.h - 1 };
+}
+
+function buildOC() {
+  const oc = document.createElement("canvas");
+  oc.width = S.w;
+  oc.height = S.h;
+  S.octx = oc.getContext("2d");
+  S.oc = oc;
+  S.img = S.octx.createImageData(S.w, S.h);
+  S.u32 = new Uint32Array(S.img.data.buffer);
+  refreshOC();
+}
+
+// --- Palette unten ---
+
 function buildPal() {
   const P2 = $("pal");
   P2.innerHTML = "";
@@ -1136,8 +2076,7 @@ function buildPal() {
   });
   sw.forEach((_, i) => swUpd(i));
 }
-const swQ = /* @__PURE__ */ new Set();
-let swRaf = 0;
+
 function swLater(i) {
   swQ.add(i);
   if (!swRaf) swRaf = requestAnimationFrame(() => {
@@ -1146,12 +2085,14 @@ function swLater(i) {
     swQ.clear();
   });
 }
+
 function swUpd(i) {
   const e = sw[i];
   e.innerHTML = S.left[i] ? `${i + 1}<small>${S.left[i]}</small>` : `${i + 1}<small>✓</small>`;
   e.classList.toggle("done", !S.left[i]);
   e.classList.toggle("sel", i === sel);
 }
+
 function choose(i) {
   const o = sel;
   sel = i;
@@ -1162,6 +2103,7 @@ function choose(i) {
   sw[i].scrollIntoView({ inline: "center", block: "nearest" });
   draw();
 }
+
 function pickNext(f) {
   for (let k = 0; k < S.pal.length; k++) {
     const i = (f + k) % S.pal.length;
@@ -1172,17 +2114,22 @@ function pickNext(f) {
   }
   choose(0);
 }
+
 function pct() {
   const t = S.idx.length, l = S.left.reduce((a, b) => a + b, 0);
   $("pct").textContent = Math.floor((t - l) / t * 100) + " %" + (penalty && S.mis ? ` · ✗ ${S.mis}` : "");
   return l;
 }
+
+// --- Ansicht: Größe, Einpassen, Zoomen, Zeichnen ---
+
 function resize() {
   dpr = window.devicePixelRatio || 1;
   cv.width = cv.clientWidth * dpr;
   cv.height = cv.clientHeight * dpr;
   draw();
 }
+
 function fit() {
   if (!S) return;
   const W = cv.clientWidth, H = cv.clientHeight;
@@ -1192,10 +2139,29 @@ function fit() {
   oy = (H - S.h * scale) / 2;
   draw();
 }
+
 function draw() {
   cancelAnimationFrame(raf);
   raf = requestAnimationFrame(render);
 }
+
+function fastOn() {
+  fast = true;
+  clearTimeout(fastT);
+  fastT = setTimeout(() => {
+    fast = false;
+    draw();
+  }, 140);
+}
+
+function zoomAt(cx, cy, f) {
+  const ns = Math.max(minS, Math.min(80, scale * f));
+  f = ns / scale;
+  ox = cx - (cx - ox) * f;
+  oy = cy - (cy - oy) * f;
+  scale = ns;
+}
+
 function render() {
   const W = cv.clientWidth, H = cv.clientHeight;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1260,24 +2226,42 @@ function render() {
     } else ping = null;
   }
 }
-function fastOn() {
-  fast = true;
-  clearTimeout(fastT);
-  fastT = setTimeout(() => {
-    fast = false;
-    draw();
-  }, 140);
+
+// --- Bild öffnen und schließen ---
+
+function openPic(r) {
+  toggleMenu(false);
+  S = r;
+  prep(S);
+  if (!S.smudge) S.smudge = new Uint8Array(S.idx.length);
+  S.mis = S.mis || 0;
+  lastJump = -1;
+  buildOC();
+  view("ed");
+  $("ttl").textContent = S.name;
+  buildPal();
+  resize();
+  fit();
+  pickNext(0);
+  pct();
 }
-function zoomAt(cx, cy, f) {
-  const ns = Math.max(minS, Math.min(80, scale * f));
-  f = ns / scale;
-  ox = cx - (cx - ox) * f;
-  oy = cy - (cy - oy) * f;
-  scale = ns;
-}
+
+$("back").onclick = async () => {
+  if (savePending) await save();
+  S = null;
+  gallery();
+  if (lastSaveError) toast("⚠ Nicht gespeichert: " + lastSaveError);
+};
+
+// ======================================================================
+// 10. MALEN (SPIELLOGIK)
+// paintAt: malt genau EIN Feld (nur wenn es zur gewählten Farbe gehört). Falsche Felder werden im
+// Strafmodus grau (smudge) und gezählt (mis). paintLine füllt Lücken zwischen zwei Stiftpositionen.
+// ======================================================================
 function done() {
   if (!pct()) toast("Bild fertig! 🎉");
 }
+
 function paintAt(sx, sy) {
   const x = Math.floor((sx - ox) / scale), y = Math.floor((sy - oy) / scale);
   if (x < 0 || y < 0 || x >= S.w || y >= S.h) return;
@@ -1304,6 +2288,7 @@ function paintAt(sx, sy) {
     pickNext(sel + 1);
   } else swLater(sel);
 }
+
 function paintLine(a, b, c, d) {
   const st2 = Math.max(1, Math.ceil(Math.hypot(c - a, d - b) / Math.max(1, scale / 2)));
   for (let s = 1; s <= st2; s++) paintAt(a + (c - a) * s / st2, b + (d - b) * s / st2);
@@ -1312,13 +2297,38 @@ function paintLine(a, b, c, d) {
 }
 
 // ======================================================================
-// 7. EINGABE
-// Zeiger-Ereignisse: Finger (verschieben/zoomen), Stift (malen; Knopf = verschieben), Maus.
+// 11. EINGABE (FINGER, STIFT, MAUS)
+// Jeder Strich hat eine Rolle: "paint" (malen) oder "pan" (Bild verschieben).
+// Entscheidung: startsOnTarget() und role(). Pointer-Ereignisse der Malfläche, Mausrad, Stift-Knopf.
 // ======================================================================
-const P = /* @__PURE__ */ new Map();
-let pin = null;
-const role = (e) => e.pointerType === "touch" ? mode === 1 ? "paint" : "pan" : mode === 2 || penBtn || e.buttons & 38 ? "pan" : "paint";
+// Liegt unter dem Stift (Toleranz penTol) ein offenes Feld der gewählten Farbe?
+function startsOnTarget(sx, sy) {
+  const r = penTol;
+  const x0 = Math.floor((sx - r - ox) / scale), x1 = Math.floor((sx + r - ox) / scale);
+  const y0 = Math.floor((sy - r - oy) / scale), y1 = Math.floor((sy + r - oy) / scale);
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (x < 0 || y < 0 || x >= S.w || y >= S.h) continue;
+      const i = y * S.w + x;
+      if (!S.done[i] && S.idx[i] === sel) return true;
+    }
+  }
+  return false;
+}
+
+// Rolle eines Striches: "paint" (malen) oder "pan" (Bild verschieben)
+//   Finger:      verschiebt (Modus "Finger malt": malt)
+//   Stift/Maus:  Modus "automatisch" -> malt, wenn der Strich auf einem offenen Feld der
+//                gewählten Farbe beginnt, sonst verschiebt er; Stift-Knopf erzwingt "pan"
+const role = (e) => {
+  if (e.pointerType === "touch") return mode === 1 ? "paint" : "pan";
+  if (mode === 2 || penBtn || e.buttons & 38) return "pan";
+  const p = P.get(e.pointerId);
+  return p && p.role ? p.role : "paint";
+};
+
 const touches = () => [...P.values()].filter((p) => p.t === "touch");
+
 cv.addEventListener("pointerdown", (e) => {
   if (!S) return;
   try {
@@ -1326,7 +2336,15 @@ cv.addEventListener("pointerdown", (e) => {
   } catch (x) {
   }
   stroke.clear();
-  P.set(e.pointerId, { x: e.offsetX, y: e.offsetY, t: e.pointerType });
+  const entry = { x: e.offsetX, y: e.offsetY, t: e.pointerType };
+  if (e.pointerType !== "touch" && mode === 0) {
+    entry.role = startsOnTarget(e.offsetX, e.offsetY) ? "paint" : "pan";
+    if (entry.role === "pan" && !hintShown) {
+      hintShown = true;
+      toast("Tipp: Auf einem offenen Feld der gewählten Farbe aufsetzen = malen, sonst = Bild verschieben");
+    }
+  }
+  P.set(e.pointerId, entry);
   if (touches().length === 2) {
     pin = null;
     return;
@@ -1337,6 +2355,7 @@ cv.addEventListener("pointerdown", (e) => {
     done();
   }
 });
+
 cv.addEventListener("pointermove", (e) => {
   const p = P.get(e.pointerId);
   if (!p || !S) return;
@@ -1364,6 +2383,7 @@ cv.addEventListener("pointermove", (e) => {
     draw();
   } else paintLine(a, b, p.x, p.y);
 });
+
 const up = (e) => {
   P.delete(e.pointerId);
   pin = null;
@@ -1371,11 +2391,13 @@ const up = (e) => {
   pct();
   if (dirty) {
     dirty = false;
-    save();
+    saveSoon();
   }
 };
+
 cv.addEventListener("pointerup", up);
 cv.addEventListener("pointercancel", up);
+
 cv.addEventListener("wheel", (e) => {
   e.preventDefault();
   zoomAt(e.offsetX, e.offsetY, e.deltaY < 0 ? 1.2 : 1 / 1.2);
@@ -1383,31 +2405,75 @@ cv.addEventListener("wheel", (e) => {
   draw();
 }, { passive: false });
 
+cv.addEventListener("contextmenu", (e) => e.preventDefault());
+
+// S-Pen-Knopf (Zusatz): Falls das Gerät den Knopf über die Flags "buttons"/"button" meldet,
+// verschiebt der Stift bei gedrücktem Knopf. Ohne Meldung entscheidet die Startstelle (siehe role).
+["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerover"].forEach((t) => document.addEventListener(t, (e) => {
+  if (e.pointerType === "pen") {
+    penBtn = !!(e.buttons & 38) || (t === "pointerdown" && (e.button === 2 || e.button === 5));
+  }
+}, true));
+
 // ======================================================================
-// 8. WERKZEUGE & SCHALTER
-// Werkzeugleiste, Zoomtasten, Strafmodus, Suchknopf, Stift-Test (Diagnose).
+// 12. OPTIONEN-MENÜ
+// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Strafmodus, Umbenennen, Speichern, Teilen,
+// Speicher & Sicherung, Stift-Test.
+// Tippen außerhalb schließt das Menü, ohne dass darunter etwas passiert.
 // ======================================================================
-$("tools").onclick = (e) => {
-  const b = e.target.closest("button");
-  if (!b) return;
+function toggleMenu(open) {
+  menu.hidden = open === void 0 ? !menu.hidden : !open;
+  $("menuBtn").classList.toggle("on", !menu.hidden);
+}
+
+$("menuBtn").onclick = () => toggleMenu();
+
+// Tippen außerhalb schließt das Menü und löst sonst nichts aus
+document.addEventListener("pointerdown", (e) => {
+  if (menu.hidden || menu.contains(e.target) || e.target.closest("#menuBtn")) return;
+  e.stopPropagation();
+  toggleMenu(false);
+}, true);
+
+function modeUI() {
+  menu.querySelectorAll("[data-m]").forEach((x) => x.classList.toggle("on", +x.dataset.m === mode));
+}
+
+menu.querySelectorAll("[data-m]").forEach((b) => b.onclick = () => {
   mode = +b.dataset.m;
-  document.querySelectorAll("#tools button").forEach((x) => x.classList.toggle("on", x === b));
+  try {
+    localStorage.setItem("mnz-mode", String(mode));
+  } catch (e) {
+  }
+  modeUI();
+  toggleMenu(false);
+  toast("Zeichnen: " + MODE_NAMES[mode]);
+});
+
+$("ttl").onclick = () => {
+  if (S) renamePic(S, true);
 };
-$("zi").onclick = () => {
-  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4);
-  fastOn();
-  draw();
+
+$("ren").onclick = () => {
+  toggleMenu(false);
+  if (S) renamePic(S, true);
 };
-$("zo").onclick = () => {
-  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4);
-  fastOn();
-  draw();
+
+$("shr").onclick = () => {
+  toggleMenu(false);
+  exportPic(S, true);
 };
-$("fit").onclick = fit;
+
+$("exp").onclick = () => {
+  toggleMenu(false);
+  exportPic(S, false);
+};
+
 function penLabel() {
-  $("pen").textContent = "Strafe: " + (penalty ? "an" : "aus");
+  $("penState").textContent = penalty ? "an" : "aus";
   $("pen").classList.toggle("on", penalty);
 }
+
 $("pen").onclick = () => {
   penalty = !penalty;
   try {
@@ -1418,7 +2484,43 @@ $("pen").onclick = () => {
   if (S) pct();
   toast(penalty ? "Strafmodus an: falsche Felder werden grau" : "Strafmodus aus");
 };
-penLabel();
+
+// --- Toleranz beim Aufsetzen und Speicher-Eintrag ---
+
+function tolUI() {
+  $("tol").value = penTol;
+  $("tolVal").textContent = penTol + " px";
+}
+
+$("tol").oninput = () => {
+  penTol = +$("tol").value;
+  $("tolVal").textContent = penTol + " px";
+  try {
+    localStorage.setItem("mnz-tol", String(penTol));
+  } catch (e) {
+  }
+};
+
+$("bkMenu").onclick = openStorageDialog;
+
+// ======================================================================
+// 13. ZOOM- & SUCHKNÖPFE
+// ＋ / － zoomen, ⤢ zeigt das ganze Bild, 🎯 springt zum nächsten offenen Feld der gewählten Farbe.
+// ======================================================================
+$("zi").onclick = () => {
+  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4);
+  fastOn();
+  draw();
+};
+
+$("zo").onclick = () => {
+  zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4);
+  fastOn();
+  draw();
+};
+
+$("fit").onclick = fit;
+
 $("find").onclick = () => {
   if (!S) return;
   if (!S.left[sel]) {
@@ -1445,46 +2547,44 @@ $("find").onclick = () => {
   toast(`Noch ${S.left[sel]} offen bei Nr. ${sel + 1}`);
   draw();
 };
-cv.addEventListener("contextmenu", (e) => e.preventDefault());
-["pointerdown", "pointermove", "pointerup", "pointerover"].forEach((t) => cv.addEventListener(t, (e) => {
-  if (e.pointerType === "pen") penBtn = !!(e.buttons & 38) || t === "pointerdown" && (e.button === 2 || e.button === 5);
-}, true));
-const dbgEl = $("dbgp");
-let dbgOn = false;
-let dbgLines = [];
+
+// ======================================================================
+// 14. STIFT-TEST (DIAGNOSE)
+// Blendet ein Textfeld mit den Rohdaten der Eingabe-Ereignisse ein. Nur zur Fehlersuche am Gerät.
+// ======================================================================
 function dbgLog(e) {
   if (!dbgOn) return;
-  const sig = `${e.type} ${e.pointerType || ""} btn=${e.button} bs=${e.buttons} id=${e.pointerId}` + (e.pointerType && e.pointerType !== "touch" ? ` rolle=${role(e)}` : "");
+  const isKey = e.type.startsWith("key");
+  const sig = isKey
+    ? `${e.type} taste=${e.key}`
+    : `${e.type} ${e.pointerType || ""} btn=${e.button} bs=${e.buttons} id=${e.pointerId} ziel=${e.target.id || e.target.tagName}` +
+      (e.pointerType && e.pointerType !== "touch" ? ` rolle=${role(e)}` : "");
   const last = dbgLines[dbgLines.length - 1];
   if (last && last.sig === sig) last.n++;
   else {
     dbgLines.push({ sig, n: 1 });
-    if (dbgLines.length > 9) dbgLines.shift();
+    if (dbgLines.length > 12) dbgLines.shift();
   }
-  dbgEl.textContent = dbgLines.map((l) => l.sig + (l.n > 1 ? " ×" + l.n : "")).join("\n");
+  const head = `Knopf über Flags erkannt: ${penBtn ? "JA" : "nein"}`;
+  dbgEl.textContent = head + "\n" + dbgLines.map((l) => l.sig + (l.n > 1 ? " ×" + l.n : "")).join("\n");
 }
-["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerover", "pointerout", "contextmenu", "mousedown"].forEach((t) => cv.addEventListener(t, dbgLog, true));
+
+["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerover", "pointerout", "contextmenu", "mousedown", "auxclick", "keydown", "keyup"].forEach((t) => document.addEventListener(t, dbgLog, true));
+
 $("dbg").onclick = () => {
   dbgOn = !dbgOn;
   dbgEl.hidden = !dbgOn;
   $("dbg").classList.toggle("on", dbgOn);
+  $("dbg").querySelector("b").textContent = dbgOn ? "🔧 Stift-Test ausblenden" : "🔧 Stift-Test anzeigen";
+  toggleMenu(false);
   dbgLines = [];
   dbgEl.textContent = "Stift-Test: Stift-Knopf drücken und über das Bild ziehen …";
 };
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) save();
-});
-window.addEventListener("resize", () => {
-  if (!$("ed").hidden) {
-    resize();
-    fit();
-  }
-  if (!$("nw").hidden) cropLayout(false);
-});
 
 // ======================================================================
-// 9. APP-INSTALLATION (PWA)
-// Manifest, Service Worker, Teilen aus der Galerie.
+// 15. APP-INSTALLATION (PWA) & TEILEN
+// Registriert den Service Worker (sw.js) und das Manifest, wenn die Seite über http(s) läuft.
+// takeShared: übernimmt ein aus der Galerie geteiltes Bild (siehe auch sw.js, share-target).
 // ======================================================================
 if (location.protocol.startsWith("http")) {
   const l = document.createElement("link");
@@ -1494,6 +2594,7 @@ if (location.protocol.startsWith("http")) {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {
   });
 }
+
 async function takeShared() {
   if (!/[?&]shared=1/.test(location.search) || !window.caches) return;
   try {
@@ -1509,10 +2610,23 @@ async function takeShared() {
 }
 
 // ======================================================================
-// 10. START
-// Galerie anzeigen und ggf. geteiltes Bild übernehmen.
+// 16. START
+// Oberfläche mit gespeicherten Einstellungen abgleichen, Version anzeigen, Galerie öffnen.
 // ======================================================================
+window.addEventListener("resize", () => {
+  if (!$("ed").hidden) {
+    resize();
+    fit();
+  }
+  if (!$("nw").hidden) cropLayout(false);
+});
+
+modeUI();
+penLabel();
+tolUI();
+$("shr").hidden = !canShareFiles;
 $("ver").textContent = APP_VERSION;
+requestPersist();
 gallery().then(takeShared);
 </script>
 </body></html>
