@@ -561,6 +561,23 @@ input[type=number] {
   width: 100%;
   min-width: 0;
 }
+.opt.hl .chips {
+  margin-top: 8px;
+}
+.opt.hl .chips button.on {
+  background: var(--pn2);
+  color: var(--tx);
+  outline: 2px solid var(--acc);
+}
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: -1px;
+  box-shadow: 0 0 0 1px #fff6;
+}
 </style></head>
 <body>
 <!--
@@ -671,6 +688,19 @@ input[type=number] {
       <small>Setzt du den Stift neben ein offenes Feld auf: Größer = er malt eher, kleiner = er verschiebt eher.</small>
       <input id="tol" type="range" min="0" max="30" step="1" value="8">
     </div>
+    <div class="mtitle">ANZEIGE</div>
+    <div class="opt hl">
+      <b>Markierung der offenen Felder</b>
+      <small>So leuchten die noch offenen Felder der gewählten Farbe. „Automatisch“ nimmt die Farbe, die sich am stärksten von den Farben deines Bildes unterscheidet.</small>
+      <div class="chips" id="hlChips">
+        <button data-hl="auto"><span class="dot" id="hlAutoDot"></span>Automatisch</button>
+        <button data-hl="dark"><span class="dot" style="background:rgb(74,66,104)"></span>Dunkel</button>
+        <button data-hl="yellow"><span class="dot" style="background:rgb(255,225,0)"></span>Gelb</button>
+        <button data-hl="cyan"><span class="dot" style="background:rgb(0,230,255)"></span>Cyan</button>
+        <button data-hl="pink"><span class="dot" style="background:rgb(255,40,200)"></span>Pink</button>
+        <button data-hl="orange"><span class="dot" style="background:rgb(255,120,0)"></span>Orange</button>
+      </div>
+    </div>
     <div class="mtitle">SPIELREGELN</div>
     <button class="opt toggle" id="pen"><b>Strafmodus</b><span class="pill" id="penState">aus</span><small>Falsch überfahrene Felder werden grau. Oben steht ein Fehlerzähler.</small></button>
     <div class="mtitle">BILD</div>
@@ -743,6 +773,8 @@ input[type=number] {
    Ausschnitt/Vorschau/Größe ........... 8 (cropLayout, setDims, preview)
    Farben oder Zahlen falsch ........... 5 (quant, prep)
    Palette unten ....................... 9 (buildPal, swUpd, choose)
+   Markierung der offenen Felder schlecht
+   erkennbar ........................... 9 (autoHighlight, applyHighlight), Auswahl in 12
    Menü, Zeichenmodus, Strafmodus ...... 12
    ⤢ Einpassen, 🎯 Suchen, Zoomtasten ... 13
    Speichern als PNG, Umbenennen ....... 7
@@ -776,13 +808,16 @@ input[type=number] {
 // --- Konstanten ---
 
 // Version (steht in der Galerie) – bei JEDER Änderung hochzählen
-const APP_VERSION = "v12 · 21.11.";
+const APP_VERSION = "v13 · 21.11.";
 
 // Toleranz in Pixeln, mit der der Stift ein offenes Feld "trifft" (siehe startsOnTarget)
 const PEN_TOLERANCE = 8;
 
-// Farbe der hervorgehobenen (gewählten) Felder als 32-Bit-Wert (ABGR)
-const SEL32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
+// Wählbare Markierungsfarben für die offenen Felder der gewählten Farbe (RGB)
+const HL_PRESETS = { dark: [74, 66, 104], yellow: [255, 225, 0], cyan: [0, 230, 255], pink: [255, 40, 200], orange: [255, 120, 0] };
+
+// Kandidaten für die automatische Wahl: die Vorgaben plus Limette und Fast-Schwarz
+const HL_AUTO = [...Object.values(HL_PRESETS), [90, 255, 60], [30, 30, 40]];
 
 // Namen der Zeichenmodi (Reihenfolge = Wert von mode)
 const MODE_NAMES = ["Stift automatisch", "Finger malt auch", "Nur bewegen"];
@@ -878,6 +913,13 @@ let penalty = false;
 // Toleranz beim Aufsetzen des Stifts in Pixeln (einstellbar im Optionen-Menü, Standard PEN_TOLERANCE)
 let penTol = PEN_TOLERANCE;
 
+// Markierung der offenen Felder: "auto" oder ein Schlüssel aus HL_PRESETS (einstellbar im Optionen-Menü)
+let hlMode = "auto";
+
+// Die wirklich benutzte Markierungsfarbe als 32-Bit-Wert (ABGR) und die dazu lesbare Zahlenfarbe
+let sel32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
+let selText = "#fff";
+
 // --- Zustand: Neues Bild (Ausschnitt-Rahmen R, Zielgröße gw × gh) ---
 
 // geladenes Quellbild (Canvas)
@@ -957,7 +999,7 @@ const thumbUrls = [];
 
 const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
 
-// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol) ---
+// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol, mnz-hl) ---
 
 try {
   penalty = localStorage.getItem("mnz-pen") === "1";
@@ -966,6 +1008,12 @@ try {
 
 try {
   mode = Math.min(2, Math.max(0, +localStorage.getItem("mnz-mode") || 0));
+} catch (e) {
+}
+
+try {
+  const h = localStorage.getItem("mnz-hl");
+  if (h === "auto" || Object.prototype.hasOwnProperty.call(HL_PRESETS, h)) hlMode = h;
 } catch (e) {
 }
 
@@ -2022,10 +2070,57 @@ cc.addEventListener("wheel", (e) => {
 
 // --- Zwischenspeicher-Bitmap (Farbe jeder Zelle) ---
 
+// Abstand zweier Farben (wahrnehmungsnah, "Redmean")
+function colorDist(a, b) {
+  const rm = (a[0] + b[0]) / 2, dr = a[0] - b[0], dg = a[1] - b[1], db = a[2] - b[2];
+  return Math.sqrt((2 + rm / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rm) / 256) * db * db);
+}
+
+// Wählt die Markierungsfarbe, die sich am stärksten von allen Farben des Bildes
+// und vom hellgrauen Hintergrund der offenen Felder unterscheidet
+function autoHighlight(pal) {
+  const base = [[208, 208, 212], [244, 244, 248]];
+  let best = HL_AUTO[0], bestScore = -1;
+  for (const c of HL_AUTO) {
+    let m = Infinity;
+    for (const p of pal) m = Math.min(m, colorDist(c, p));
+    for (const p of base) m = Math.min(m, colorDist(c, p));
+    if (m > bestScore) {
+      bestScore = m;
+      best = c;
+    }
+  }
+  return best;
+}
+
+// Wählt dunkle oder weiße Zahlenfarbe, je nachdem, was auf der Farbe den besseren Kontrast (WCAG) ergibt
+function textFor(rgb) {
+  const L = (c) => {
+    const f = (v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  };
+  const l = L(rgb);
+  return (l + 0.05) / (L([26, 26, 34]) + 0.05) > 1.05 / (l + 0.05) ? "#1a1a22" : "#fff";
+}
+
+// Setzt Markierungsfarbe (sel32) und Zahlenfarbe (selText) nach hlMode und zeichnet neu
+function applyHighlight() {
+  const auto = S ? autoHighlight(S.pal) : HL_PRESETS.yellow;
+  const rgb = hlMode === "auto" ? auto : HL_PRESETS[hlMode] || HL_PRESETS.dark;
+  sel32 = (255 << 24 | rgb[2] << 16 | rgb[1] << 8 | rgb[0]) >>> 0;
+  selText = textFor(rgb);
+  $("hlAutoDot").style.background = `rgb(${auto})`;
+  if (S && S.u32) refreshOC();
+  draw();
+}
+
 function cellCol(i) {
   const c = S.idx[i];
   if (S.done[i]) return S.rgb32[c];
-  if (c === sel) return SEL32;
+  if (c === sel) return sel32;
   const L = S.smudge[i];
   if (!L) return S.gr32[c];
   const v = Math.round((S.gr32[c] & 255) * (1 - 0.1 * L));
@@ -2210,7 +2305,7 @@ function render() {
       const i = y * S.w + x;
       if (S.done[i]) continue;
       const c = S.idx[i];
-      ctx.fillStyle = c === sel ? "#fff" : "#4a4660";
+      ctx.fillStyle = c === sel ? selText : "#4a4660";
       ctx.fillText(c + 1, ox + x * scale + scale / 2, oy + y * scale + scale / 2);
     }
   }
@@ -2236,6 +2331,7 @@ function openPic(r) {
   if (!S.smudge) S.smudge = new Uint8Array(S.idx.length);
   S.mis = S.mis || 0;
   lastJump = -1;
+  applyHighlight();
   buildOC();
   view("ed");
   $("ttl").textContent = S.name;
@@ -2417,7 +2513,7 @@ cv.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // ======================================================================
 // 12. OPTIONEN-MENÜ
-// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Strafmodus, Umbenennen, Speichern, Teilen,
+// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Markierungsfarbe, Strafmodus, Umbenennen, Speichern, Teilen,
 // Speicher & Sicherung, Stift-Test.
 // Tippen außerhalb schließt das Menü, ohne dass darunter etwas passiert.
 // ======================================================================
@@ -2502,6 +2598,22 @@ $("tol").oninput = () => {
 };
 
 $("bkMenu").onclick = openStorageDialog;
+
+// --- Markierungsfarbe der offenen Felder ---
+
+function hlUI() {
+  document.querySelectorAll("#hlChips [data-hl]").forEach((b) => b.classList.toggle("on", b.dataset.hl === hlMode));
+}
+
+document.querySelectorAll("#hlChips [data-hl]").forEach((b) => b.onclick = () => {
+  hlMode = b.dataset.hl;
+  try {
+    localStorage.setItem("mnz-hl", hlMode);
+  } catch (e) {
+  }
+  hlUI();
+  applyHighlight();
+});
 
 // ======================================================================
 // 13. ZOOM- & SUCHKNÖPFE
@@ -2624,6 +2736,8 @@ window.addEventListener("resize", () => {
 modeUI();
 penLabel();
 tolUI();
+hlUI();
+applyHighlight();
 $("shr").hidden = !canShareFiles;
 $("ver").textContent = APP_VERSION;
 requestPersist();
