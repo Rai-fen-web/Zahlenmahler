@@ -502,7 +502,8 @@ input[type=number] {
   color: #2a1700;
 }
 #modal,
-#bkModal {
+#bkModal,
+#stModal {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -578,6 +579,42 @@ input[type=number] {
   vertical-align: -1px;
   box-shadow: 0 0 0 1px #fff6;
 }
+.stbody {
+  max-height: 62vh;
+  overflow: auto;
+}
+.stbody .mtitle {
+  padding: 12px 0 4px;
+}
+.strow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--ln);
+  font-size: 14px;
+}
+.strow span {
+  color: var(--mut);
+}
+.chart {
+  display: block;
+  width: 100%;
+  margin: 6px 0;
+}
+.chart .bar {
+  fill: var(--pn2);
+}
+.chart .bar.today {
+  fill: var(--acc);
+}
+.chart text {
+  fill: var(--mut);
+  font-size: 11px;
+}
+.chart .val {
+  fill: var(--tx);
+}
 </style></head>
 <body>
 <!--
@@ -602,6 +639,7 @@ input[type=number] {
         <path fill="#ff9d5c" d="M1 2h1v1H1z"/>
         <path fill="#54a0ff" d="M2 2h1v1H2z"/>
       </svg>Zahlenmaler<small id="ver"></small></h1>
+    <button id="stOpen" title="Statistik">📊</button>
     <button id="bkOpen" title="Speicher &amp; Sicherung">💾 Sicherung</button>
     <button id="new" class="pri">＋ Neues Bild</button>
   </header>
@@ -701,11 +739,14 @@ input[type=number] {
         <button data-hl="orange"><span class="dot" style="background:rgb(255,120,0)"></span>Orange</button>
       </div>
     </div>
+    <button class="opt toggle" id="optHide"><b>Fertige Farben ausblenden</b><span class="pill" id="hideState">an</span><small>Farben ohne offene Felder verschwinden aus der Palette.</small></button>
+    <button class="opt toggle" id="optSort"><b>Farben nach Restfeldern sortieren</b><span class="pill" id="sortState">aus</span><small>Die Farbe mit den wenigsten offenen Feldern steht links. Die Reihenfolge ändert sich nur, wenn eine Farbe fertig wird.</small></button>
     <div class="mtitle">SPIELREGELN</div>
     <button class="opt toggle" id="pen"><b>Strafmodus</b><span class="pill" id="penState">aus</span><small>Falsch überfahrene Felder werden grau. Oben steht ein Fehlerzähler.</small></button>
     <div class="mtitle">BILD</div>
     <button class="opt" id="ren"><b>✎ Bild umbenennen</b></button>
     <button class="opt" id="exp"><b>💾 Als Bild speichern</b><small>PNG-Datei im Ordner Downloads, erscheint in der Galerie.</small></button>
+    <button class="opt" id="stMenu"><b>📊 Statistik</b><small>Malzeit, Tempo, Fortschritt und Verlauf der letzten Tage.</small></button>
     <button class="opt" id="shr" hidden><b>↗ Teilen</b></button>
     <div class="mtitle">SPEICHER</div>
     <button class="opt" id="bkMenu"><b>🗄 Speicher &amp; Sicherung</b><small>Sicherungsdatei erstellen oder wiederherstellen, Speicherstatus prüfen.</small></button>
@@ -740,6 +781,15 @@ input[type=number] {
   </div>
 </div>
 
+<!-- Statistik -->
+<div id="stModal" hidden>
+  <div class="mbox">
+    <h3>Statistik</h3>
+    <div id="stBody" class="stbody"></div>
+    <div class="mrow"><button id="stClose">Schließen</button></div>
+  </div>
+</div>
+
 <script>
 /*
   ZAHLENMALER – Malen nach Zahlen mit eigenen Bildern (läuft offline im Browser, installierbar als App)
@@ -757,34 +807,39 @@ input[type=number] {
     8. NEUES BILD
     9. MALBILDSCHIRM (ANZEIGE)
    10. MALEN (SPIELLOGIK)
-   11. EINGABE (FINGER, STIFT, MAUS)
-   12. OPTIONEN-MENÜ
-   13. ZOOM- & SUCHKNÖPFE
-   14. STIFT-TEST (DIAGNOSE)
-   15. APP-INSTALLATION (PWA) & TEILEN
-   16. START
+   11. STATISTIK
+   12. EINGABE (FINGER, STIFT, MAUS)
+   13. OPTIONEN-MENÜ
+   14. ZOOM- & SUCHKNÖPFE
+   15. STIFT-TEST (DIAGNOSE)
+   16. APP-INSTALLATION (PWA) & TEILEN
+   17. START
 
   FEHLERSUCHE – Symptom -> wo schauen?
-   Stift malt/verschiebt falsch ........ 11 (role, startsOnTarget), Toleranz: penTol in 1, Regler in 12
+   Stift malt/verschiebt falsch ........ 12 (role, startsOnTarget), Toleranz: penTol in 1, Regler in 13
    Ruckeln beim Zoomen/Malen ........... 9 (render, fastOn), 10 (paintAt)
-   Bild/Fortschritt nicht gespeichert .. 2 (save, saveSoon, saveFailed), 3 (Status), 16 (Start)
+   Bild/Fortschritt nicht gespeichert .. 2 (save, saveSoon, saveFailed), 3 (Status), 17 (Start)
    Bilder verschwunden / Sicherung ..... 3 (doBackup, doRestore), 2 (Datenbank)
    Galerie zeigt Falsches/langsam ...... 6 (gallery, loadMetas), 2 (makeMeta, thumbCanvas)
    Ausschnitt/Vorschau/Größe ........... 8 (cropLayout, setDims, preview)
    Farben oder Zahlen falsch ........... 5 (quant, prep)
-   Palette unten ....................... 9 (buildPal, swUpd, choose)
+   Palette unten (Reihenfolge, Ausblenden) 9 (buildPal, swUpd, sortPalette), Schalter in 13
    Markierung der offenen Felder schlecht
-   erkennbar ........................... 9 (autoHighlight, applyHighlight), Auswahl in 12
-   Menü, Zeichenmodus, Strafmodus ...... 12
-   ⤢ Einpassen, 🎯 Suchen, Zoomtasten ... 13
+   erkennbar ........................... 9 (autoHighlight, applyHighlight), Auswahl in 13
+   Statistik falsch (Zeit, Tempo, Serie)  11 (noteActivity, noteCell, collectStats, openStatsDialog)
+   Menü, Zeichenmodus, Strafmodus ...... 13
+   ⤢ Einpassen, 🎯 Suchen, Zoomtasten ... 14
    Speichern als PNG, Umbenennen ....... 7
-   Installation, Offline, Update ....... 15 (und sw.js)
+   Installation, Offline, Update ....... 16 (und sw.js)
 
   DATENMODELL (ein Bild S)
-   S = { id, name, w, h, pal, idx, done, smudge, mis, updated }          (Tabelle "pics")
-   meta = { id, name, w, h, updated, total, left, mis, thumb }           (Tabelle "meta", für die Galerie)
-        thumb = kleines PNG (Blob). meta wird bei jedem Speichern mitgeschrieben; fehlende Einträge
+   S = { id, name, w, h, pal, idx, done, smudge, mis, stats, updated }   (Tabelle "pics")
+   meta = { id, name, w, h, updated, total, left, mis, stats, thumb }    (Tabelle "meta", für die Galerie)
+        thumb = kleines PNG (Data-URL; ältere Einträge: Blob). meta wird bei jedem Speichern mitgeschrieben; fehlende Einträge
         (z. B. von älteren Versionen) baut die Galerie beim Öffnen nach.
+   stats = { ms, cells, first, finished?, daily: { "JJJJ-MM-TT": { ms, cells } } }
+        ms = Malzeit (Pausen über IDLE_MS zählen nicht), cells = gemalte Felder mit Statistik,
+        first/finished = Zeitstempel, daily = Verlauf je Tag. Bilder aus älteren Versionen haben stats = null.
    Zelle i = y * w + x.  idx[i] = Farbnummer (0-basiert),  done[i] = 1 wenn angemalt,
    smudge[i] = 0..3 (Strafmodus), mis = Anzahl Fehler.  Abgeleitet (nicht gespeichert):
    css, rgb32, gr32, left (offene Felder je Farbe), oc/img/u32 (Zwischenspeicher-Bitmap).
@@ -808,7 +863,7 @@ input[type=number] {
 // --- Konstanten ---
 
 // Version (steht in der Galerie) – bei JEDER Änderung hochzählen
-const APP_VERSION = "v13 · 21.11.";
+const APP_VERSION = "v15 · 21.11.";
 
 // Toleranz in Pixeln, mit der der Stift ein offenes Feld "trifft" (siehe startsOnTarget)
 const PEN_TOLERANCE = 8;
@@ -818,6 +873,9 @@ const HL_PRESETS = { dark: [74, 66, 104], yellow: [255, 225, 0], cyan: [0, 230, 
 
 // Kandidaten für die automatische Wahl: die Vorgaben plus Limette und Fast-Schwarz
 const HL_AUTO = [...Object.values(HL_PRESETS), [90, 255, 60], [30, 30, 40]];
+
+// Pausen ohne Eingabe, die länger dauern, zählen nicht zur Malzeit (Statistik)
+const IDLE_MS = 60000;
 
 // Namen der Zeichenmodi (Reihenfolge = Wert von mode)
 const MODE_NAMES = ["Stift automatisch", "Finger malt auch", "Nur bewegen"];
@@ -920,6 +978,12 @@ let hlMode = "auto";
 let sel32 = (255 << 24 | 104 << 16 | 66 << 8 | 74) >>> 0;
 let selText = "#fff";
 
+// Palette: Farben ohne offene Felder ausblenden (an/aus, Optionen-Menü)
+let hideDone = true;
+
+// Palette: Farben nach Restfeldern sortieren, wenigste zuerst (an/aus, Optionen-Menü)
+let sortLeft = false;
+
 // --- Zustand: Neues Bild (Ausschnitt-Rahmen R, Zielgröße gw × gh) ---
 
 // geladenes Quellbild (Canvas)
@@ -980,6 +1044,12 @@ let savePending = false;
 // Beschreibung des letzten Speicherfehlers oder null
 let lastSaveError = null;
 
+// true, wenn sich nur die Statistik (Malzeit) geändert hat und noch nicht gespeichert ist
+let statsDirty = false;
+
+// Zeitpunkt der letzten Eingabe im Malbildschirm (0 = keine laufende Messung), siehe noteActivity
+let lastActive = 0;
+
 // Zeitpunkt der letzten erfolgreichen Speicherung
 let lastSaveOk = 0;
 
@@ -999,7 +1069,7 @@ const thumbUrls = [];
 
 const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
 
-// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol, mnz-hl) ---
+// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol, mnz-hl, mnz-hidedone, mnz-sortleft) ---
 
 try {
   penalty = localStorage.getItem("mnz-pen") === "1";
@@ -1008,6 +1078,12 @@ try {
 
 try {
   mode = Math.min(2, Math.max(0, +localStorage.getItem("mnz-mode") || 0));
+} catch (e) {
+}
+
+try {
+  hideDone = localStorage.getItem("mnz-hidedone") !== "0";
+  sortLeft = localStorage.getItem("mnz-sortleft") === "1";
 } catch (e) {
 }
 
@@ -1029,6 +1105,10 @@ try {
 //   pics = komplettes Bild (Farben, Zellen, Fortschritt) -> wird zum Malen geladen
 //   meta = Kurzinfo für die Galerie (Name, Größe, Fortschritt, Vorschaubild) -> schnell zu laden
 // Gespeichert wird verzögert (saveSoon, nach dem Strich) und sofort beim Verlassen/Ausblenden (save).
+// Reine Statistik-Änderungen (nur Malzeit) speichern, ohne die Reihenfolge in der Galerie zu ändern.
+// Journal: Nach jedem Strich wird der Stand sofort und synchron im localStorage notiert (jWrite). Es
+// überlebt auch ein abruptes Schließen/Beenden, bevor die Datenbank fertig geschrieben hat, und wird beim
+// nächsten Start in die Datenbank übernommen (recoverJournals). Nach erfolgreichem Speichern wird es geleert.
 // Fehler werden sichtbar gemeldet (saveFailed) und das Speichern wird wiederholt.
 // Neues Feld pro Bild: in recordOf() ergänzen UND in openPic() mit Standardwert versehen,
 // weil ältere gespeicherte Bilder das Feld noch nicht haben.
@@ -1043,7 +1123,10 @@ const DB = new Promise((res, rej) => {
     if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "id" });
   };
   r.onsuccess = () => {
-    r.result.onversionchange = () => r.result.close();
+    r.result.onversionchange = () => {
+      dbh = null;
+      r.result.close();
+    };
     res(r.result);
   };
   r.onerror = () => rej(r.error);
@@ -1051,12 +1134,17 @@ const DB = new Promise((res, rej) => {
 });
 
 // Fehler beim Öffnen werden bei jeder Benutzung gemeldet (save, gallery); hier nur "als gesehen" markieren
-DB.catch(() => {
+// Geöffnete Datenbank merken: Dann startet eine Transaktion sofort, ohne Warten – wichtig, wenn die Seite
+// gerade geschlossen wird (pagehide), denn danach laufen keine verzögerten Schritte mehr zu Ende.
+let dbh = null;
+DB.then((d) => {
+  dbh = d;
+}, () => {
 });
 
 // Führt f(store, ...) in einer Transaktion aus; stores = Tabellenname oder Liste von Namen
 const tx = async (stores, mode, f) => {
-  const db = await DB;
+  const db = dbh || await DB;
   const names = [].concat(stores);
   return new Promise((res, rej) => {
     const t = db.transaction(names, mode);
@@ -1079,7 +1167,7 @@ const dbDel = (id) => tx(["pics", "meta"], "readwrite", (p, m) => {
 });
 
 function recordOf(s) {
-  return { id: s.id, name: s.name, w: s.w, h: s.h, pal: s.pal, idx: s.idx, done: s.done, smudge: s.smudge || new Uint8Array(s.idx.length), mis: s.mis || 0, updated: s.updated };
+  return { id: s.id, name: s.name, w: s.w, h: s.h, pal: s.pal, idx: s.idx, done: s.done, smudge: s.smudge || new Uint8Array(s.idx.length), mis: s.mis || 0, stats: s.stats || null, updated: s.updated };
 }
 
 function leftOf(s) {
@@ -1108,15 +1196,17 @@ function thumbCanvas(s) {
   return t;
 }
 
-// Kurzinfo für die Galerie (Tabelle meta)
-async function makeMeta(s) {
-  const thumb = await new Promise((res) => thumbCanvas(s).toBlob(res, "image/png"));
-  return { id: s.id, name: s.name, w: s.w, h: s.h, updated: s.updated || 0, total: s.idx.length, left: leftOf(s), mis: s.mis || 0, thumb };
+// Kurzinfo für die Galerie (Tabelle meta). Das Vorschaubild entsteht sofort (toDataURL), nicht asynchron.
+// Ältere Kurzinfos enthalten das Vorschaubild noch als Blob; die Galerie versteht beides.
+function makeMeta(s) {
+  const thumb = thumbCanvas(s).toDataURL("image/png");
+  return { id: s.id, name: s.name, w: s.w, h: s.h, updated: s.updated || 0, total: s.idx.length, left: leftOf(s), mis: s.mis || 0, stats: s.stats || null, thumb };
 }
 
-// Schreibt Bild und Kurzinfo gemeinsam (entweder beides oder nichts)
+// Schreibt Bild und Kurzinfo gemeinsam (entweder beides oder nichts). Alles bis zum Start der
+// Transaktion läuft ohne Wartepunkt, damit es auch beim Schließen der Seite noch gelingt.
 async function putPic(s) {
-  const meta = await makeMeta(s);
+  const meta = makeMeta(s);
   await tx(["pics", "meta"], "readwrite", (p, m) => {
     p.put(recordOf(s));
     m.put(meta);
@@ -1165,12 +1255,16 @@ function saveSoon() {
 // Sofort speichern (Verlassen, Ausblenden, neues Bild, Wiederholung nach Fehler)
 async function save() {
   clearTimeout(saveT);
+  const bump = savePending;
   savePending = false;
+  statsDirty = false;
   const s = S || unsaved;
   if (!s) return;
-  s.updated = Date.now();
+  if (bump || !s.updated) s.updated = Date.now();
+  const j = jmap.get(s.id), n1 = j ? j.done.length : 0, n2 = j ? j.smudge.length : 0;
   try {
     await putPic(s);
+    jSettle(s.id, n1, n2);
     if (unsaved === s) unsaved = null;
     saveOk();
   } catch (e) {
@@ -1178,12 +1272,112 @@ async function save() {
   }
 }
 
+// --- Journal (localStorage) ---
+
+// Bild-ID -> noch nicht in die Datenbank geschriebene Änderungen: { done: [Zellindex], smudge: [[Zellindex, Stufe]] }
+const jmap = new Map();
+const jkey = (id) => "mnz-j:" + id;
+
+function jOf(id) {
+  let j = jmap.get(id);
+  if (!j) jmap.set(id, j = { done: [], smudge: [] });
+  return j;
+}
+
+// Schreibt das Journal des Bildes s (synchron); Fehler (z. B. voll) werden ignoriert
+function jWrite(s) {
+  const j = jOf(s.id);
+  try {
+    if (!j.done.length && !j.smudge.length) localStorage.removeItem(jkey(s.id));
+    else localStorage.setItem(jkey(s.id), JSON.stringify({ id: s.id, ts: Date.now(), done: j.done, smudge: j.smudge, mis: s.mis || 0, stats: s.stats || null }));
+  } catch (e) {
+  }
+}
+
+// Nach erfolgreichem Speichern: die gespeicherten n1/n2 Einträge entfernen (später dazugekommene bleiben)
+function jSettle(id, n1, n2) {
+  const j = jmap.get(id);
+  if (!j) return;
+  j.done.splice(0, n1);
+  j.smudge.splice(0, n2);
+  try {
+    if (!j.done.length && !j.smudge.length) localStorage.removeItem(jkey(id));
+    else jWrite({ id, mis: S && S.id === id ? S.mis : 0, stats: S && S.id === id ? S.stats : null });
+  } catch (e) {
+  }
+}
+
+// Übernimmt gefundene Journale in die Datenbank (beim Start, vor dem Anzeigen der Galerie)
+async function recoverJournals() {
+  let restored = 0;
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("mnz-j:")) keys.push(k);
+    }
+  } catch (e) {
+    return;
+  }
+  for (const k of keys) {
+    // Unlesbare oder unpassende Einträge werden gelöscht; bei Datenbankfehlern bleibt der Eintrag erhalten
+    let j = null;
+    try {
+      j = JSON.parse(localStorage.getItem(k));
+    } catch (e) {
+    }
+    if (!j || typeof j.id !== "number" || !Array.isArray(j.done) || !Array.isArray(j.smudge)) {
+      try {
+        localStorage.removeItem(k);
+      } catch (e) {
+      }
+      continue;
+    }
+    try {
+      const rec = await dbGet(j.id);
+      if (!rec) {
+        localStorage.removeItem(k);
+        continue;
+      }
+      const n = rec.done.length;
+      if (!rec.smudge || rec.smudge.length !== n) rec.smudge = new Uint8Array(n);
+      let changed = 0;
+      for (const i of j.done) {
+        if (Number.isInteger(i) && i >= 0 && i < n && !rec.done[i]) {
+          rec.done[i] = 1;
+          changed++;
+        }
+      }
+      for (const e of j.smudge) {
+        if (Array.isArray(e) && Number.isInteger(e[0]) && e[0] >= 0 && e[0] < n && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= 3 && rec.smudge[e[0]] < e[1]) {
+          rec.smudge[e[0]] = e[1];
+          changed++;
+        }
+      }
+      if (Number.isInteger(j.mis) && j.mis > (rec.mis || 0)) rec.mis = j.mis;
+      const js = sanitizeStats(j.stats);
+      if (js && (!rec.stats || js.cells > rec.stats.cells || js.cells === rec.stats.cells && js.ms > rec.stats.ms)) rec.stats = js;
+      if (Number.isFinite(j.ts) && j.ts > (rec.updated || 0)) rec.updated = j.ts;
+      if (changed) {
+        await putPic(rec);
+        restored += changed;
+      }
+      localStorage.removeItem(k);
+    } catch (e) {
+    }
+  }
+  if (restored) toast("Nicht gespeicherte Änderungen wiederhergestellt ✓");
+}
+
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && savePending) save();
+  if (document.hidden) {
+    lastActive = 0;
+    if (savePending || statsDirty) save();
+  }
 });
 
 window.addEventListener("pagehide", () => {
-  if (savePending) save();
+  if (savePending || statsDirty) save();
 });
 
 // ======================================================================
@@ -1219,7 +1413,7 @@ async function makeBackupFile() {
     app: "zahlenmaler",
     format: 1,
     created: Date.now(),
-    pics: recs.map((r) => ({ id: r.id, name: r.name, w: r.w, h: r.h, pal: r.pal, idx: b64enc(r.idx), done: b64enc(r.done), smudge: b64enc(r.smudge || new Uint8Array(r.idx.length)), mis: r.mis || 0, updated: r.updated })),
+    pics: recs.map((r) => ({ id: r.id, name: r.name, w: r.w, h: r.h, pal: r.pal, idx: b64enc(r.idx), done: b64enc(r.done), smudge: b64enc(r.smudge || new Uint8Array(r.idx.length)), mis: r.mis || 0, stats: r.stats || null, updated: r.updated })),
   };
   let blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   if (window.CompressionStream) blob = await new Response(blob.stream().pipeThrough(new CompressionStream("gzip"))).blob();
@@ -1228,7 +1422,7 @@ async function makeBackupFile() {
 
 async function doBackup() {
   try {
-    if (savePending) await save();
+    if (savePending || statsDirty) await save();
     const { blob, count } = await makeBackupFile();
     if (!count) {
       toast("Es gibt noch keine Bilder zum Sichern");
@@ -1288,12 +1482,12 @@ function recordFromBackup(p) {
   if (idx.length !== n || done.length !== n) return null;
   for (let i = 0; i < n; i++) if (idx[i] >= p.pal.length) return null;
   if (!smudge || smudge.length !== n) smudge = new Uint8Array(n);
-  return { id: p.id, name: cleanName(p.name) || "Bild", w, h, pal: p.pal, idx, done, smudge, mis: Number.isInteger(p.mis) ? p.mis : 0, updated: Number.isFinite(p.updated) ? p.updated : Date.now() };
+  return { id: p.id, name: cleanName(p.name) || "Bild", w, h, pal: p.pal, idx, done, smudge, mis: Number.isInteger(p.mis) ? p.mis : 0, stats: sanitizeStats(p.stats), updated: Number.isFinite(p.updated) ? p.updated : Date.now() };
 }
 
 async function doRestore(file) {
   try {
-    if (savePending) await save();
+    if (savePending || statsDirty) await save();
     const data = await readBackup(file);
     let restored = 0, skipped = 0, invalid = 0;
     const ids = new Set();
@@ -1587,7 +1781,8 @@ async function gallery() {
     mat.className = "mat";
     const img = document.createElement("img");
     img.alt = "";
-    if (m.thumb) {
+    if (typeof m.thumb === "string") img.src = m.thumb;
+    else if (m.thumb) {
       const url = URL.createObjectURL(m.thumb);
       thumbUrls.push(url);
       img.src = url;
@@ -1598,7 +1793,7 @@ async function gallery() {
     el.querySelector("b").textContent = m.name;
     el.onclick = async () => {
       try {
-        const rec = await dbGet(m.id);
+        const rec = unsaved && unsaved.id === m.id ? unsaved : await dbGet(m.id);
         if (!rec) {
           toast("Bild nicht gefunden");
           gallery();
@@ -1631,6 +1826,12 @@ async function gallery() {
       if (confirm(`„${m.name}“ löschen?`)) {
         try {
           await dbDel(m.id);
+          jmap.delete(m.id);
+          try {
+            localStorage.removeItem(jkey(m.id));
+          } catch (e) {
+          }
+          if (unsaved && unsaved.id === m.id) unsaved = null;
           gallery();
         } catch (err) {
           toast("Löschen nicht möglich: " + describeError(err));
@@ -2170,6 +2371,26 @@ function buildPal() {
     return e;
   });
   sw.forEach((_, i) => swUpd(i));
+  sortPalette();
+}
+
+// Reihenfolge der Farbfelder: nach Nummer oder (sortLeft) nach Restfeldern, fertige Farben zuletzt
+function sortedOrder() {
+  const order = S.pal.map((_, i) => i);
+  if (sortLeft) order.sort((a, b) => (S.left[a] || Infinity) - (S.left[b] || Infinity) || a - b);
+  return order;
+}
+
+// Ordnet die Farbfelder neu. Nur aufrufen, wenn sich die Reihenfolge ändern darf
+// (Bild öffnen, Farbe fertig, Schalter umgelegt) – nicht bei jedem gemalten Feld.
+function sortPalette() {
+  const P2 = $("pal");
+  for (const i of sortedOrder()) P2.appendChild(sw[i]);
+}
+
+function refreshPalette() {
+  sw.forEach((_, i) => swUpd(i));
+  sortPalette();
 }
 
 function swLater(i) {
@@ -2186,6 +2407,7 @@ function swUpd(i) {
   e.innerHTML = S.left[i] ? `${i + 1}<small>${S.left[i]}</small>` : `${i + 1}<small>✓</small>`;
   e.classList.toggle("done", !S.left[i]);
   e.classList.toggle("sel", i === sel);
+  e.hidden = hideDone && !S.left[i] && i !== sel;
 }
 
 function choose(i) {
@@ -2200,6 +2422,11 @@ function choose(i) {
 }
 
 function pickNext(f) {
+  if (sortLeft) {
+    const first = sortedOrder().find((k) => S.left[k]);
+    choose(first === void 0 ? 0 : first);
+    return;
+  }
   for (let k = 0; k < S.pal.length; k++) {
     const i = (f + k) % S.pal.length;
     if (S.left[i]) {
@@ -2331,6 +2558,7 @@ function openPic(r) {
   if (!S.smudge) S.smudge = new Uint8Array(S.idx.length);
   S.mis = S.mis || 0;
   lastJump = -1;
+  lastActive = 0;
   applyHighlight();
   buildOC();
   view("ed");
@@ -2343,7 +2571,7 @@ function openPic(r) {
 }
 
 $("back").onclick = async () => {
-  if (savePending) await save();
+  if (savePending || statsDirty) await save();
   S = null;
   gallery();
   if (lastSaveError) toast("⚠ Nicht gespeichert: " + lastSaveError);
@@ -2367,6 +2595,7 @@ function paintAt(sx, sy) {
     if (penalty && !stroke.has(i)) {
       stroke.add(i);
       if (S.smudge[i] < 3) S.smudge[i]++;
+      jOf(S.id).smudge.push([i, S.smudge[i]]);
       S.mis++;
       S.u32[i] = cellCol(i);
       markDirty(i);
@@ -2375,12 +2604,19 @@ function paintAt(sx, sy) {
     return;
   }
   S.done[i] = 1;
+  jOf(S.id).done.push(i);
   S.left[sel]--;
   dirty = true;
   S.u32[i] = S.rgb32[sel];
   markDirty(i);
+  noteCell();
   if (!S.left[sel]) {
+    if (S.left.every((v) => !v)) {
+      statsOf(S).finished = Date.now();
+      statsDirty = true;
+    }
     swUpd(sel);
+    sortPalette();
     pickNext(sel + 1);
   } else swLater(sel);
 }
@@ -2393,7 +2629,265 @@ function paintLine(a, b, c, d) {
 }
 
 // ======================================================================
-// 11. EINGABE (FINGER, STIFT, MAUS)
+// 11. STATISTIK
+// Misst Malzeit, gemalte Felder und Verlauf je Tag (pro Bild in S.stats, siehe DATENMODELL oben).
+//   noteActivity: wird bei jeder Eingabe im Malbildschirm aufgerufen; zählt die Zeit seit der letzten
+//                 Eingabe zur Malzeit, wenn sie kürzer als IDLE_MS war (Pausen zählen nicht)
+//   noteCell:     zählt ein gemaltes Feld (aus paintAt)
+//   collectStats/openStatsDialog: Auswertung über alle Bilder (aus der Tabelle meta) und das offene Bild
+// Erreichbar über 📊 in der Galerie und über Optionen -> Statistik.
+// ======================================================================
+const pad2 = (n) => String(n).padStart(2, "0");
+
+function dayKey(t) {
+  const d = new Date(t === void 0 ? Date.now() : t);
+  return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+}
+
+function statsOf(s) {
+  if (!s.stats) s.stats = { ms: 0, cells: 0, first: Date.now(), daily: {} };
+  return s.stats;
+}
+
+function dayStats(st) {
+  const k = dayKey();
+  return st.daily[k] || (st.daily[k] = { ms: 0, cells: 0 });
+}
+
+// --- Messen ---
+
+function noteActivity() {
+  if (!S) return;
+  const now = Date.now();
+  if (lastActive && now - lastActive < IDLE_MS) {
+    const st = statsOf(S), dt = now - lastActive;
+    st.ms += dt;
+    dayStats(st).ms += dt;
+    statsDirty = true;
+  }
+  lastActive = now;
+}
+
+function noteCell() {
+  const st = statsOf(S);
+  st.cells++;
+  dayStats(st).cells++;
+}
+
+// Prüft Statistik-Daten aus einer Sicherungsdatei und liefert eine saubere Kopie (oder null)
+function sanitizeStats(x) {
+  if (!x || typeof x !== "object") return null;
+  const num = (v) => Number.isFinite(v) && v >= 0 ? Math.round(v) : 0;
+  const st = { ms: num(x.ms), cells: num(x.cells), first: Number.isFinite(x.first) ? x.first : 0, daily: {} };
+  if (Number.isFinite(x.finished)) st.finished = x.finished;
+  if (x.daily && typeof x.daily === "object") {
+    for (const k of Object.keys(x.daily)) {
+      const d = x.daily[k];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && d && typeof d === "object") st.daily[k] = { ms: num(d.ms), cells: num(d.cells) };
+    }
+  }
+  return st;
+}
+
+// --- Auswerten ---
+
+function fmtDuration(ms) {
+  const s = Math.round(ms / 1000);
+  if (s < 60) return s + " Sek";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + " Min";
+  return Math.floor(m / 60) + " Std " + pad2(m % 60) + " Min";
+}
+
+// Tempo in Feldern pro Minute; erst ab 30 s Malzeit aussagekräftig
+function fmtSpeed(cells, ms) {
+  if (ms < 30000 || cells < 1) return "–";
+  return (cells / (ms / 60000)).toFixed(1).replace(".", ",") + " Felder/Min";
+}
+
+function fmtDate(t) {
+  return new Date(t).toLocaleDateString("de-DE");
+}
+
+// Die letzten n Kalendertage, älteste zuerst
+function lastDays(n) {
+  const out = [], base = new Date(Date.now());
+  for (let k = n - 1; k >= 0; k--) {
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() - k);
+    out.push({ key: dayKey(d.getTime()), label: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"][d.getDay()], today: k === 0 });
+  }
+  return out;
+}
+
+// Serie: Tage in Folge, an denen gemalt wurde. Sie darf auch gestern enden (heute noch nicht gemalt).
+function streakOf(daily) {
+  const active = (k) => daily[k] && (daily[k].ms > 0 || daily[k].cells > 0);
+  const days = lastDays(400).reverse();
+  let i = active(days[0].key) ? 0 : 1, n = 0;
+  while (i < days.length && active(days[i].key)) {
+    n++;
+    i++;
+  }
+  return { n, today: !!active(days[0].key) };
+}
+
+// Fasst Bilder zusammen: items = [{ name, total, left, mis, stats }]
+function collectStats(items) {
+  const a = { pics: items.length, finished: 0, done: 0, ms: 0, cells: 0, mis: 0, daily: {} };
+  for (const it of items) {
+    if (!it.left) a.finished++;
+    a.done += it.total - it.left;
+    a.mis += it.mis || 0;
+    const st = it.stats;
+    if (!st) continue;
+    a.ms += st.ms || 0;
+    a.cells += st.cells || 0;
+    for (const k of Object.keys(st.daily || {})) {
+      const d = a.daily[k] || (a.daily[k] = { ms: 0, cells: 0 });
+      d.ms += st.daily[k].ms || 0;
+      d.cells += st.daily[k].cells || 0;
+    }
+  }
+  return a;
+}
+
+// Alle Bilder aus der Galerie-Tabelle; das gerade offene Bild mit seinem aktuellen Stand
+async function statItems() {
+  const items = (await loadMetas()).map((m) => ({ id: m.id, name: m.name, total: m.total, left: m.left, mis: m.mis || 0, stats: m.stats || null }));
+  if (S) {
+    const live = { id: S.id, name: S.name, total: S.idx.length, left: S.left.reduce((a, b) => a + b, 0), mis: S.mis || 0, stats: S.stats || null };
+    const at = items.findIndex((x) => x.id === S.id);
+    if (at >= 0) items[at] = live;
+    else items.push(live);
+  }
+  return items;
+}
+
+// --- Anzeigen ---
+
+function statRow(parent, label, value) {
+  const r = document.createElement("div");
+  r.className = "strow";
+  const a = document.createElement("span");
+  a.textContent = label;
+  const b = document.createElement("b");
+  b.textContent = value;
+  r.append(a, b);
+  parent.appendChild(r);
+}
+
+function statTitle(parent, text) {
+  const h = document.createElement("div");
+  h.className = "mtitle";
+  h.textContent = text;
+  parent.appendChild(h);
+}
+
+// Säulendiagramm: gemalte Felder je Tag
+function statChart(parent, daily, days) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 280 120");
+  svg.setAttribute("class", "chart");
+  svg.id = "stChart";
+  const vals = days.map((d) => daily[d.key] ? daily[d.key].cells : 0);
+  const max = Math.max(1, ...vals);
+  days.forEach((d, k) => {
+    const h = vals[k] ? Math.max(3, Math.round(vals[k] / max * 70)) : 0;
+    const x = 10 + k * 38;
+    const bar = document.createElementNS(NS, "rect");
+    bar.setAttribute("x", x);
+    bar.setAttribute("y", 85 - h);
+    bar.setAttribute("width", 28);
+    bar.setAttribute("height", h);
+    bar.setAttribute("rx", 4);
+    bar.setAttribute("class", d.today ? "bar today" : "bar");
+    svg.appendChild(bar);
+    const lab = document.createElementNS(NS, "text");
+    lab.setAttribute("x", x + 14);
+    lab.setAttribute("y", 104);
+    lab.setAttribute("text-anchor", "middle");
+    lab.textContent = d.label;
+    svg.appendChild(lab);
+    if (vals[k]) {
+      const v = document.createElementNS(NS, "text");
+      v.setAttribute("x", x + 14);
+      v.setAttribute("y", 85 - h - 4);
+      v.setAttribute("text-anchor", "middle");
+      v.setAttribute("class", "val");
+      v.textContent = vals[k];
+      svg.appendChild(v);
+    }
+  });
+  parent.appendChild(svg);
+}
+
+function renderStats(body, items, cur) {
+  body.replaceChildren();
+  const all = collectStats(items);
+  if (cur) {
+    const st = cur.stats, doneN = cur.total - cur.left;
+    statTitle(body, "DIESES BILD");
+    statRow(body, "Fortschritt", `${doneN} von ${cur.total} Feldern (${Math.floor(doneN / cur.total * 100)} %)`);
+    statRow(body, "Malzeit", st && st.ms ? fmtDuration(st.ms) : "–");
+    statRow(body, "Tempo", st ? fmtSpeed(st.cells, st.ms) : "–");
+    if (cur.mis) statRow(body, "Fehler", String(cur.mis));
+    if (st && st.first) statRow(body, "Gestartet", fmtDate(st.first));
+    if (!cur.left && st && st.finished) statRow(body, "Fertig am", fmtDate(st.finished));
+    else if (cur.left && st && st.ms >= 30000 && st.cells >= 5) statRow(body, "Noch etwa (geschätzt)", fmtDuration(cur.left / (st.cells / st.ms)));
+  }
+  statTitle(body, "ALLE BILDER");
+  statRow(body, "Bilder", `${all.pics} (${all.finished} fertig)`);
+  statRow(body, "Gemalte Felder", String(all.done));
+  statRow(body, "Malzeit gesamt", all.ms ? fmtDuration(all.ms) : "–");
+  statRow(body, "Tempo im Schnitt", fmtSpeed(all.cells, all.ms));
+  if (all.mis) statRow(body, "Fehler gesamt", String(all.mis));
+  statTitle(body, "LETZTE 7 TAGE (FELDER PRO TAG)");
+  statChart(body, all.daily, lastDays(7));
+  const today = all.daily[dayKey()] || { ms: 0, cells: 0 };
+  statRow(body, "Heute", `${today.cells} Felder · ${fmtDuration(today.ms)}`);
+  const sk = streakOf(all.daily);
+  statRow(body, "Serie", sk.n ? `${sk.n} Tag${sk.n === 1 ? "" : "e"} in Folge${sk.today ? "" : " (heute noch nicht gemalt)"}` : "noch keine");
+  if (!all.ms && !all.cells) {
+    const p = document.createElement("p");
+    p.className = "bkinfo";
+    p.textContent = "Noch keine Messwerte. Sobald du malst, wird hier mitgezählt. Pausen von mehr als einer Minute zählen nicht zur Malzeit.";
+    body.appendChild(p);
+  }
+}
+
+async function openStatsDialog() {
+  toggleMenu(false);
+  $("stModal").hidden = false;
+  const body = $("stBody");
+  body.textContent = "Lade …";
+  try {
+    const items = await statItems();
+    renderStats(body, items, S ? items.find((x) => x.id === S.id) : null);
+  } catch (e) {
+    body.textContent = "Statistik nicht verfügbar: " + describeError(e);
+  }
+}
+
+// --- Bedienelemente und Messung ---
+
+$("stOpen").onclick = openStatsDialog;
+$("stClose").onclick = () => {
+  $("stModal").hidden = true;
+};
+$("stModal").onclick = (e) => {
+  if (e.target === $("stModal")) $("stModal").hidden = true;
+};
+
+// Eingaben im Malbildschirm zählen als Aktivität (Bewegen mit gedrückter Taste/Berührung, Tippen, Mausrad)
+$("ed").addEventListener("pointerdown", noteActivity, true);
+$("ed").addEventListener("pointermove", (e) => {
+  if (e.buttons || e.pointerType === "touch") noteActivity();
+}, true);
+$("ed").addEventListener("wheel", noteActivity, true);
+
+// ======================================================================
+// 12. EINGABE (FINGER, STIFT, MAUS)
 // Jeder Strich hat eine Rolle: "paint" (malen) oder "pan" (Bild verschieben).
 // Entscheidung: startsOnTarget() und role(). Pointer-Ereignisse der Malfläche, Mausrad, Stift-Knopf.
 // ======================================================================
@@ -2488,6 +2982,7 @@ const up = (e) => {
   if (dirty) {
     dirty = false;
     saveSoon();
+    if (S) jWrite(S);
   }
 };
 
@@ -2512,9 +3007,9 @@ cv.addEventListener("contextmenu", (e) => e.preventDefault());
 }, true));
 
 // ======================================================================
-// 12. OPTIONEN-MENÜ
-// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Markierungsfarbe, Strafmodus, Umbenennen, Speichern, Teilen,
-// Speicher & Sicherung, Stift-Test.
+// 13. OPTIONEN-MENÜ
+// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Markierungsfarbe, Palette aufräumen, Strafmodus, Umbenennen, Speichern, Teilen,
+// Statistik, Speicher & Sicherung, Stift-Test.
 // Tippen außerhalb schließt das Menü, ohne dass darunter etwas passiert.
 // ======================================================================
 function toggleMenu(open) {
@@ -2598,6 +3093,7 @@ $("tol").oninput = () => {
 };
 
 $("bkMenu").onclick = openStorageDialog;
+$("stMenu").onclick = openStatsDialog;
 
 // --- Markierungsfarbe der offenen Felder ---
 
@@ -2615,8 +3111,40 @@ document.querySelectorAll("#hlChips [data-hl]").forEach((b) => b.onclick = () =>
   applyHighlight();
 });
 
+// --- Palette aufräumen (Schalter) ---
+
+function hideUI() {
+  $("optHide").classList.toggle("on", hideDone);
+  $("hideState").textContent = hideDone ? "an" : "aus";
+}
+
+function sortUI() {
+  $("optSort").classList.toggle("on", sortLeft);
+  $("sortState").textContent = sortLeft ? "an" : "aus";
+}
+
+$("optHide").onclick = () => {
+  hideDone = !hideDone;
+  try {
+    localStorage.setItem("mnz-hidedone", hideDone ? "1" : "0");
+  } catch (e) {
+  }
+  hideUI();
+  if (S) refreshPalette();
+};
+
+$("optSort").onclick = () => {
+  sortLeft = !sortLeft;
+  try {
+    localStorage.setItem("mnz-sortleft", sortLeft ? "1" : "0");
+  } catch (e) {
+  }
+  sortUI();
+  if (S) refreshPalette();
+};
+
 // ======================================================================
-// 13. ZOOM- & SUCHKNÖPFE
+// 14. ZOOM- & SUCHKNÖPFE
 // ＋ / － zoomen, ⤢ zeigt das ganze Bild, 🎯 springt zum nächsten offenen Feld der gewählten Farbe.
 // ======================================================================
 $("zi").onclick = () => {
@@ -2661,7 +3189,7 @@ $("find").onclick = () => {
 };
 
 // ======================================================================
-// 14. STIFT-TEST (DIAGNOSE)
+// 15. STIFT-TEST (DIAGNOSE)
 // Blendet ein Textfeld mit den Rohdaten der Eingabe-Ereignisse ein. Nur zur Fehlersuche am Gerät.
 // ======================================================================
 function dbgLog(e) {
@@ -2694,7 +3222,7 @@ $("dbg").onclick = () => {
 };
 
 // ======================================================================
-// 15. APP-INSTALLATION (PWA) & TEILEN
+// 16. APP-INSTALLATION (PWA) & TEILEN
 // Registriert den Service Worker (sw.js) und das Manifest, wenn die Seite über http(s) läuft.
 // takeShared: übernimmt ein aus der Galerie geteiltes Bild (siehe auch sw.js, share-target).
 // ======================================================================
@@ -2722,7 +3250,7 @@ async function takeShared() {
 }
 
 // ======================================================================
-// 16. START
+// 17. START
 // Oberfläche mit gespeicherten Einstellungen abgleichen, Version anzeigen, Galerie öffnen.
 // ======================================================================
 window.addEventListener("resize", () => {
@@ -2738,9 +3266,11 @@ penLabel();
 tolUI();
 hlUI();
 applyHighlight();
+hideUI();
+sortUI();
 $("shr").hidden = !canShareFiles;
 $("ver").textContent = APP_VERSION;
 requestPersist();
-gallery().then(takeShared);
+recoverJournals().then(gallery).then(takeShared);
 </script>
 </body></html>
