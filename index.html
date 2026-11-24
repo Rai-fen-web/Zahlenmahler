@@ -503,7 +503,8 @@ input[type=number] {
 }
 #modal,
 #bkModal,
-#stModal {
+#stModal,
+#mmModal {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -615,6 +616,25 @@ input[type=number] {
 .chart .val {
   fill: var(--tx);
 }
+#mm {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 2;
+  border: 1px solid var(--ln);
+  border-radius: 8px;
+  background: #0e0b1c;
+  box-shadow: 0 6px 18px #0009;
+  touch-action: none;
+  cursor: crosshair;
+}
+#mmPrev {
+  display: block;
+  margin: 4px auto 12px;
+  border: 1px solid var(--ln);
+  border-radius: 8px;
+  background: #0e0b1c;
+}
 </style></head>
 <body>
 <!--
@@ -706,6 +726,7 @@ input[type=number] {
   <div class="strip"></div>
   <div id="stage">
     <canvas id="cv"></canvas>
+    <canvas id="mm" title="Minimap: tippen oder ziehen zum Springen" hidden></canvas>
     <pre id="dbgp" hidden></pre>
     <div class="float" id="zoomb">
       <button id="find" title="Zum nächsten offenen Feld dieser Farbe springen">🎯</button>
@@ -741,6 +762,7 @@ input[type=number] {
     </div>
     <button class="opt toggle" id="optHide"><b>Fertige Farben ausblenden</b><span class="pill" id="hideState">an</span><small>Farben ohne offene Felder verschwinden aus der Palette.</small></button>
     <button class="opt toggle" id="optSort"><b>Farben nach Restfeldern sortieren</b><span class="pill" id="sortState">aus</span><small>Die Farbe mit den wenigsten offenen Feldern steht links. Die Reihenfolge ändert sich nur, wenn eine Farbe fertig wird.</small></button>
+    <button class="opt" id="mmMenu"><b>🗺 Minimap</b><small id="mmSum"></small></button>
     <div class="mtitle">SPIELREGELN</div>
     <button class="opt toggle" id="pen"><b>Strafmodus</b><span class="pill" id="penState">aus</span><small>Falsch überfahrene Felder werden grau. Oben steht ein Fehlerzähler.</small></button>
     <div class="mtitle">BILD</div>
@@ -781,6 +803,20 @@ input[type=number] {
   </div>
 </div>
 
+<!-- Minimap -->
+<div id="mmModal" hidden>
+  <div class="mbox">
+    <h3>Minimap</h3>
+    <canvas id="mmPrev" width="1" height="1" hidden></canvas>
+    <button class="opt toggle" id="mmOnBtn"><b>Minimap anzeigen</b><span class="pill" id="mmOnState">an</span><small>Sie erscheint unten links, sobald du ins Bild hineinzoomst. Tippen oder Ziehen springt zur Stelle.</small></button>
+    <div class="mtitle">DETAILGRAD</div>
+    <button class="opt" data-mmd="1"><b>Einfach</b><small>Zeigt nur, wo noch viel zu malen ist: hell = offen, dunkel = fertig.</small></button>
+    <button class="opt" data-mmd="2"><b>Normal</b><small>Das Bild: gemalte Felder in Farbe, offene Felder grau.</small></button>
+    <button class="opt" data-mmd="3"><b>Detailliert</b><small>Wie Normal, dazu leuchten die offenen Felder der gewählten Farbe.</small></button>
+    <div class="mrow"><button id="mmClose">Schließen</button></div>
+  </div>
+</div>
+
 <!-- Statistik -->
 <div id="stModal" hidden>
   <div class="mbox">
@@ -811,14 +847,15 @@ input[type=number] {
    12. EINGABE (FINGER, STIFT, MAUS)
    13. OPTIONEN-MENÜ
    14. ZOOM- & SUCHKNÖPFE
-   15. STIFT-TEST (DIAGNOSE)
-   16. APP-INSTALLATION (PWA) & TEILEN
-   17. START
+   15. MINIMAP
+   16. STIFT-TEST (DIAGNOSE)
+   17. APP-INSTALLATION (PWA) & TEILEN
+   18. START
 
   FEHLERSUCHE – Symptom -> wo schauen?
    Stift malt/verschiebt falsch ........ 12 (role, startsOnTarget), Toleranz: penTol in 1, Regler in 13
    Ruckeln beim Zoomen/Malen ........... 9 (render, fastOn), 10 (paintAt)
-   Bild/Fortschritt nicht gespeichert .. 2 (save, saveSoon, saveFailed), 3 (Status), 17 (Start)
+   Bild/Fortschritt nicht gespeichert .. 2 (save, saveSoon, saveFailed, Journal), 3 (Status), 18 (Start)
    Bilder verschwunden / Sicherung ..... 3 (doBackup, doRestore), 2 (Datenbank)
    Galerie zeigt Falsches/langsam ...... 6 (gallery, loadMetas), 2 (makeMeta, thumbCanvas)
    Ausschnitt/Vorschau/Größe ........... 8 (cropLayout, setDims, preview)
@@ -827,10 +864,11 @@ input[type=number] {
    Markierung der offenen Felder schlecht
    erkennbar ........................... 9 (autoHighlight, applyHighlight), Auswahl in 13
    Statistik falsch (Zeit, Tempo, Serie)  11 (noteActivity, noteCell, collectStats, openStatsDialog)
+   Minimap (Anzeige, Sprung, Detailgrad) . 15 (mmDraw, mmBuild, mmGoto), Fenster ebenfalls in 15
    Menü, Zeichenmodus, Strafmodus ...... 13
    ⤢ Einpassen, 🎯 Suchen, Zoomtasten ... 14
    Speichern als PNG, Umbenennen ....... 7
-   Installation, Offline, Update ....... 16 (und sw.js)
+   Installation, Offline, Update ....... 17 (und sw.js)
 
   DATENMODELL (ein Bild S)
    S = { id, name, w, h, pal, idx, done, smudge, mis, stats, updated }   (Tabelle "pics")
@@ -863,7 +901,7 @@ input[type=number] {
 // --- Konstanten ---
 
 // Version (steht in der Galerie) – bei JEDER Änderung hochzählen
-const APP_VERSION = "v15 · 21.11.";
+const APP_VERSION = "v16 · 22.11.";
 
 // Toleranz in Pixeln, mit der der Stift ein offenes Feld "trifft" (siehe startsOnTarget)
 const PEN_TOLERANCE = 8;
@@ -877,6 +915,11 @@ const HL_AUTO = [...Object.values(HL_PRESETS), [90, 255, 60], [30, 30, 40]];
 // Pausen ohne Eingabe, die länger dauern, zählen nicht zur Malzeit (Statistik)
 const IDLE_MS = 60000;
 
+// Minimap: Namen der Detailgrade (Reihenfolge = Wert von mmLevel minus 1) und Farben der einfachen Stufe (ABGR)
+const MM_NAMES = ["Einfach", "Normal", "Detailliert"];
+const MM_DONE = (255 << 24 | 70 << 16 | 30 << 8 | 36) >>> 0;
+const MM_OPEN = (255 << 24 | 235 << 16 | 225 << 8 | 225) >>> 0;
+
 // Namen der Zeichenmodi (Reihenfolge = Wert von mode)
 const MODE_NAMES = ["Stift automatisch", "Finger malt auch", "Nur bewegen"];
 
@@ -887,6 +930,10 @@ const cv = $("cv");
 const ctx = cv.getContext("2d");
 const cc = $("cc");
 const cctx = cc.getContext("2d");
+
+// Minimap-Fläche im Malbildschirm
+const mm = $("mm");
+const mmx = mm.getContext("2d");
 const menu = $("menu");
 const dbgEl = $("dbgp");
 
@@ -984,6 +1031,16 @@ let hideDone = true;
 // Palette: Farben nach Restfeldern sortieren, wenigste zuerst (an/aus, Optionen-Menü)
 let sortLeft = false;
 
+// Minimap: an/aus, Detailgrad 1 Einfach / 2 Normal / 3 Detailliert (Optionen -> Minimap)
+let mmOn = true;
+let mmLevel = 2;
+
+// Minimap-Bitmap (1 Pixel je Zelle), ob sie neu gebaut werden muss, Timer der verzögerten Aktualisierung, Ziehen
+let mmBmp = null;
+let mmStale = true;
+let mmT = 0;
+let mmDrag = false;
+
 // --- Zustand: Neues Bild (Ausschnitt-Rahmen R, Zielgröße gw × gh) ---
 
 // geladenes Quellbild (Canvas)
@@ -1069,7 +1126,7 @@ const thumbUrls = [];
 
 const lum = (p) => p[0] * 0.3 + p[1] * 0.59 + p[2] * 0.11;
 
-// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol, mnz-hl, mnz-hidedone, mnz-sortleft) ---
+// --- Gespeicherte Einstellungen laden (localStorage: mnz-pen, mnz-mode, mnz-tol, mnz-hl, mnz-hidedone, mnz-sortleft, mnz-mm, mnz-mmd) ---
 
 try {
   penalty = localStorage.getItem("mnz-pen") === "1";
@@ -1078,6 +1135,13 @@ try {
 
 try {
   mode = Math.min(2, Math.max(0, +localStorage.getItem("mnz-mode") || 0));
+} catch (e) {
+}
+
+try {
+  mmOn = localStorage.getItem("mnz-mm") !== "0";
+  const d = +localStorage.getItem("mnz-mmd");
+  if (d === 1 || d === 2 || d === 3) mmLevel = d;
 } catch (e) {
 }
 
@@ -2315,6 +2379,7 @@ function applyHighlight() {
   selText = textFor(rgb);
   $("hlAutoDot").style.background = `rgb(${auto})`;
   if (S && S.u32) refreshOC();
+  if (mmLevel === 3) mmStale = true;
   draw();
 }
 
@@ -2418,6 +2483,7 @@ function choose(i) {
   if (sw[o]) swUpd(o);
   swUpd(i);
   sw[i].scrollIntoView({ inline: "center", block: "nearest" });
+  if (mmLevel === 3) mmStale = true;
   draw();
 }
 
@@ -2449,6 +2515,7 @@ function resize() {
   dpr = window.devicePixelRatio || 1;
   cv.width = cv.clientWidth * dpr;
   cv.height = cv.clientHeight * dpr;
+  if (S) mmFit();
   draw();
 }
 
@@ -2547,6 +2614,7 @@ function render() {
       draw();
     } else ping = null;
   }
+  mmDraw();
 }
 
 // --- Bild öffnen und schließen ---
@@ -2559,6 +2627,8 @@ function openPic(r) {
   S.mis = S.mis || 0;
   lastJump = -1;
   lastActive = 0;
+  mmStale = true;
+  mmDrag = false;
   applyHighlight();
   buildOC();
   view("ed");
@@ -2610,6 +2680,7 @@ function paintAt(sx, sy) {
   S.u32[i] = S.rgb32[sel];
   markDirty(i);
   noteCell();
+  mmSchedule();
   if (!S.left[sel]) {
     if (S.left.every((v) => !v)) {
       statsOf(S).finished = Date.now();
@@ -3008,7 +3079,7 @@ cv.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // ======================================================================
 // 13. OPTIONEN-MENÜ
-// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Markierungsfarbe, Palette aufräumen, Strafmodus, Umbenennen, Speichern, Teilen,
+// Menü (⚙ Optionen): Zeichenmodus, Toleranz beim Aufsetzen, Markierungsfarbe, Palette aufräumen, Minimap, Strafmodus, Umbenennen, Speichern, Teilen,
 // Statistik, Speicher & Sicherung, Stift-Test.
 // Tippen außerhalb schließt das Menü, ohne dass darunter etwas passiert.
 // ======================================================================
@@ -3189,7 +3260,201 @@ $("find").onclick = () => {
 };
 
 // ======================================================================
-// 15. STIFT-TEST (DIAGNOSE)
+// 15. MINIMAP
+// Kleine Übersicht unten links im Malbildschirm: das ganze Bild und ein Rahmen für den sichtbaren Ausschnitt.
+// Sie erscheint nur, wenn du ins Bild hineingezoomt hast. Tippen oder Ziehen auf der Minimap springt dorthin.
+// Detailgrad (Optionen -> Minimap):
+//   1 Einfach      hell = noch offen, dunkel = fertig (zeigt nur, wo noch viel zu tun ist)
+//   2 Normal       das Bild: gemalte Felder in Farbe, offene Felder grau
+//   3 Detailliert  wie Normal, dazu leuchten die offenen Felder der gewählten Farbe
+//   mmBuild: baut die Bitmap (1 Pixel je Zelle); mmDraw: zeichnet Bitmap und Rahmen (bei jedem render)
+//   mmSchedule: baut die Bitmap nach dem Malen verzögert neu (höchstens alle 0,3 s)
+// ======================================================================
+// --- Bitmap und Zeichnen ---
+
+function mmBuild() {
+  const n = S.idx.length;
+  if (!mmBmp || mmBmp.width !== S.w || mmBmp.height !== S.h) {
+    mmBmp = document.createElement("canvas");
+    mmBmp.width = S.w;
+    mmBmp.height = S.h;
+  }
+  const bx = mmBmp.getContext("2d");
+  const img = bx.createImageData(S.w, S.h);
+  const u = new Uint32Array(img.data.buffer);
+  for (let i = 0; i < n; i++) {
+    const c = S.idx[i];
+    if (mmLevel === 1) u[i] = S.done[i] ? MM_DONE : MM_OPEN;
+    else if (S.done[i]) u[i] = S.rgb32[c];
+    else u[i] = mmLevel === 3 && c === sel ? sel32 : S.gr32[c];
+  }
+  bx.putImageData(img, 0, 0);
+}
+
+// Bitmap beim nächsten Zeichnen neu bauen
+function mmInvalidate() {
+  mmStale = true;
+  draw();
+}
+
+// Nach dem Malen: nicht bei jedem Feld, sondern höchstens alle 0,3 s neu bauen
+function mmSchedule() {
+  if (mmT) return;
+  mmT = setTimeout(() => {
+    mmT = 0;
+    mmInvalidate();
+  }, 300);
+}
+
+// Größe der Minimap: lange Seite 90 bis 150 px, Seitenverhältnis wie das Bild
+function mmFit() {
+  const L = Math.max(90, Math.min(150, Math.round(Math.min(cv.clientWidth, cv.clientHeight) * 0.28)));
+  const k = L / Math.max(S.w, S.h);
+  const w = Math.max(1, Math.round(S.w * k)), h = Math.max(1, Math.round(S.h * k));
+  mm.style.width = w + "px";
+  mm.style.height = h + "px";
+  mm.width = Math.round(w * dpr);
+  mm.height = Math.round(h * dpr);
+  draw();
+}
+
+function mmDraw() {
+  if (!S || !mmOn) {
+    if (!mm.hidden) mm.hidden = true;
+    return;
+  }
+  const W = cv.clientWidth, H = cv.clientHeight;
+  const x0 = -ox / scale, y0 = -oy / scale, x1 = (W - ox) / scale, y1 = (H - oy) / scale;
+  const all = x0 <= 0 && y0 <= 0 && x1 >= S.w && y1 >= S.h;
+  if (mm.hidden !== all) mm.hidden = all;
+  if (all) return;
+  if (mmStale || !mmBmp) {
+    mmBuild();
+    mmStale = false;
+  }
+  const w = mm.width / dpr, h = mm.height / dpr, kx = w / S.w, ky = h / S.h;
+  const cl = (v, hi) => Math.min(hi, Math.max(0, v));
+  const rx0 = cl(x0, S.w) * kx, rx1 = cl(x1, S.w) * kx, ry0 = cl(y0, S.h) * ky, ry1 = cl(y1, S.h) * ky;
+  mmx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mmx.imageSmoothingEnabled = true;
+  mmx.imageSmoothingQuality = "high";
+  mmx.drawImage(mmBmp, 0, 0, w, h);
+  mmx.fillStyle = "rgba(10,8,25,.5)";
+  mmx.fillRect(0, 0, w, ry0);
+  mmx.fillRect(0, ry1, w, h - ry1);
+  mmx.fillRect(0, ry0, rx0, ry1 - ry0);
+  mmx.fillRect(rx1, ry0, w - rx1, ry1 - ry0);
+  mmx.strokeStyle = "#ffc857";
+  mmx.lineWidth = 2;
+  mmx.strokeRect(rx0 + 1, ry0 + 1, Math.max(0, rx1 - rx0 - 2), Math.max(0, ry1 - ry0 - 2));
+}
+
+// --- Springen ---
+
+// Zeigerposition auf der Minimap -> Bildmitte dorthin legen
+function mmGoto(e) {
+  const r = mm.getBoundingClientRect();
+  const x = Math.min(S.w, Math.max(0, (e.clientX - r.left) / r.width * S.w));
+  const y = Math.min(S.h, Math.max(0, (e.clientY - r.top) / r.height * S.h));
+  ox = cv.clientWidth / 2 - x * scale;
+  oy = cv.clientHeight / 2 - y * scale;
+  fastOn();
+  draw();
+}
+
+mm.addEventListener("pointerdown", (e) => {
+  if (!S) return;
+  e.stopPropagation();
+  try {
+    mm.setPointerCapture(e.pointerId);
+  } catch (x) {
+  }
+  mmDrag = true;
+  mmGoto(e);
+});
+
+mm.addEventListener("pointermove", (e) => {
+  if (mmDrag && S) mmGoto(e);
+});
+
+const mmUp = () => {
+  mmDrag = false;
+};
+mm.addEventListener("pointerup", mmUp);
+mm.addEventListener("pointercancel", mmUp);
+
+// --- Einstellungen (Fenster "Minimap") ---
+
+function mmSave() {
+  try {
+    localStorage.setItem("mnz-mm", mmOn ? "1" : "0");
+    localStorage.setItem("mnz-mmd", String(mmLevel));
+  } catch (e) {
+  }
+}
+
+// Kleine Vorschau im Fenster, damit man den Detailgrad auch ohne Hineinzoomen sieht
+function mmPreview() {
+  const c = $("mmPrev");
+  if (!S) {
+    c.hidden = true;
+    return;
+  }
+  c.hidden = false;
+  if (mmStale || !mmBmp) {
+    mmBuild();
+    mmStale = false;
+  }
+  const k = 140 / Math.max(S.w, S.h), w = Math.max(1, Math.round(S.w * k)), h = Math.max(1, Math.round(S.h * k));
+  c.style.width = w + "px";
+  c.style.height = h + "px";
+  c.width = Math.round(w * dpr);
+  c.height = Math.round(h * dpr);
+  const g = c.getContext("2d");
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.imageSmoothingEnabled = true;
+  g.imageSmoothingQuality = "high";
+  g.drawImage(mmBmp, 0, 0, w, h);
+  g.strokeStyle = "#ffc857";
+  g.lineWidth = 2;
+  g.strokeRect(w * 0.3, h * 0.3, w * 0.4, h * 0.4);
+}
+
+function mmUI() {
+  $("mmOnBtn").classList.toggle("on", mmOn);
+  $("mmOnState").textContent = mmOn ? "an" : "aus";
+  document.querySelectorAll("#mmModal [data-mmd]").forEach((b) => b.classList.toggle("on", +b.dataset.mmd === mmLevel));
+  $("mmSum").textContent = (mmOn ? "an" : "aus") + " · " + MM_NAMES[mmLevel - 1];
+}
+
+$("mmMenu").onclick = () => {
+  toggleMenu(false);
+  $("mmModal").hidden = false;
+  mmPreview();
+};
+$("mmClose").onclick = () => {
+  $("mmModal").hidden = true;
+};
+$("mmModal").onclick = (e) => {
+  if (e.target === $("mmModal")) $("mmModal").hidden = true;
+};
+$("mmOnBtn").onclick = () => {
+  mmOn = !mmOn;
+  mmSave();
+  mmUI();
+  draw();
+};
+document.querySelectorAll("#mmModal [data-mmd]").forEach((b) => b.onclick = () => {
+  mmLevel = +b.dataset.mmd;
+  mmSave();
+  mmUI();
+  mmStale = true;
+  mmPreview();
+  draw();
+});
+
+// ======================================================================
+// 16. STIFT-TEST (DIAGNOSE)
 // Blendet ein Textfeld mit den Rohdaten der Eingabe-Ereignisse ein. Nur zur Fehlersuche am Gerät.
 // ======================================================================
 function dbgLog(e) {
@@ -3222,7 +3487,7 @@ $("dbg").onclick = () => {
 };
 
 // ======================================================================
-// 16. APP-INSTALLATION (PWA) & TEILEN
+// 17. APP-INSTALLATION (PWA) & TEILEN
 // Registriert den Service Worker (sw.js) und das Manifest, wenn die Seite über http(s) läuft.
 // takeShared: übernimmt ein aus der Galerie geteiltes Bild (siehe auch sw.js, share-target).
 // ======================================================================
@@ -3250,7 +3515,7 @@ async function takeShared() {
 }
 
 // ======================================================================
-// 17. START
+// 18. START
 // Oberfläche mit gespeicherten Einstellungen abgleichen, Version anzeigen, Galerie öffnen.
 // ======================================================================
 window.addEventListener("resize", () => {
@@ -3268,6 +3533,7 @@ hlUI();
 applyHighlight();
 hideUI();
 sortUI();
+mmUI();
 $("shr").hidden = !canShareFiles;
 $("ver").textContent = APP_VERSION;
 requestPersist();
